@@ -4,23 +4,36 @@ import Layout from '../layouts/Layout.astro';
 const sections = [
   {
     heading: 'Leadership',
-    text: 'Placeholder for thoughts on leadership — decision-making, delegation, and building teams.',
+    paragraphs: [
+      "I'm reflective by nature — I want to understand how a system fits together before I get into the details, including what's actually driving other people's actions. Once I understand that, it's much easier to find common ground and move a team toward something shared.",
+      "A few years ago I wrote a leadership statement as part of a program at AstraZeneca. I don't follow it perfectly, but I come back to it when I need direction:",
+    ],
+    quote:
+      "I believe in the intrinsic value of respect and fairness. I act on data, apply systems-thinking and coaching to navigate the complexities of decision-making to guide my team. I'm committed to fostering empowerment, I'm advocating for my team, and I'm confronting challenges with empathy and clarity. I can learn from anyone, I lead by example, and I'm only as good as my last deliverable.",
   },
   {
     heading: 'Exercise',
-    text: 'Placeholder for thoughts on exercise — training, endurance sport, and staying consistent.',
+    paragraphs: [
+      "Running and swimrun are where I put most of my training time — currently around 50 km of running and just under 2 km of swimming a week, building toward races through the year. I like to compete and push my limits when it counts, but I try to stay disciplined over the long stretches in between, since consistency is what actually moves the needle. It's paid off — I've had very few injuries along the way.",
+    ],
   },
   {
     heading: 'Learning',
-    text: 'Placeholder for thoughts on learning — books, courses, and picking up new skills.',
+    paragraphs: [
+      "I'm drawn to books and ideas about how systems, incentives, and people interact — innovation diffusion, decision-making, organizational power. I studied management and innovation economics alongside mechanical engineering at Chalmers, with some psychology mixed in along the way, and that combination still shapes what I read and how I think.",
+    ],
   },
   {
     heading: 'Family',
-    text: 'Placeholder for thoughts on family — parenting, partnership, and making time for what matters.',
+    paragraphs: [
+      'I live with my partner and our daughter, with a second on the way. Family is the anchor that makes the rest — work, training, building things — feel worth doing well rather than just doing a lot.',
+    ],
   },
   {
     heading: 'Career',
-    text: 'Placeholder for thoughts on career — growth, transitions, and lessons learned along the way.',
+    paragraphs: [
+      'My career has mostly been about translating between worlds — technical and commercial, global and local, systems and the people who have to use them — without always having formal authority to do it. That throughline has taken me from consulting through PMO leadership to quality systems leadership in a regulated pharma environment today.',
+    ],
   },
 ];
 ---
@@ -29,7 +42,10 @@ const sections = [
   {sections.map((section) => (
     <section>
       <h2>{section.heading}</h2>
-      <p>{section.text}</p>
+      {section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      {section.quote && (
+        <blockquote><p>{section.quote}</p></blockquote>
+      )}
     </section>
   ))}
 </Layout>
@@ -37,5 +53,17 @@ const sections = [
 <style>
   section {
     margin-top: 2.5rem;
+  }
+
+  blockquote {
+    margin: 1rem 0 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--color-border);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  blockquote p {
+    margin: 0;
   }
 </style>
