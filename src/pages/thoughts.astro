@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const sections = [
+  {
+    heading: 'Leadership',
+    text: 'Placeholder for thoughts on leadership — decision-making, delegation, and building teams.',
+  },
+  {
+    heading: 'Exercise',
+    text: 'Placeholder for thoughts on exercise — training, endurance sport, and staying consistent.',
+  },
+  {
+    heading: 'Learning',
+    text: 'Placeholder for thoughts on learning — books, courses, and picking up new skills.',
+  },
+  {
+    heading: 'Family',
+    text: 'Placeholder for thoughts on family — parenting, partnership, and making time for what matters.',
+  },
+  {
+    heading: 'Career',
+    text: 'Placeholder for thoughts on career — growth, transitions, and lessons learned along the way.',
+  },
+];
+---
+<Layout title="Thoughts">
+  <h1>Thoughts</h1>
+  {sections.map((section) => (
+    <section>
+      <h2>{section.heading}</h2>
+      <p>{section.text}</p>
+    </section>
+  ))}
+</Layout>
+
+<style>
+  section {
+    margin-top: 2.5rem;
+  }
+</style>

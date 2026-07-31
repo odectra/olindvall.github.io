@@ -1,0 +1,153 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Personal site of Oskar Lindvall.' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} — Oskar Lindvall</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,0..100&family=Inter:wght@400;500;600&display=swap"
+    />
+    <style>
+      :root {
+        --font-serif: 'Fraunces', ui-serif, Georgia, serif;
+        --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --radius: 0.25rem;
+
+        --color-bg: oklch(97.2% 0.004 230);
+        --color-text: oklch(21% 0.025 240);
+        --color-text-muted: oklch(47% 0.02 235);
+        --color-border: oklch(88.5% 0.008 230);
+        --color-card: oklch(99.5% 0.003 230);
+        --color-accent: oklch(47% 0.085 218);
+        --color-link: var(--color-text);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: oklch(12.9% 0.042 264.695);
+          --color-text: oklch(98.4% 0.003 247.858);
+          --color-text-muted: oklch(70.4% 0.04 256.788);
+          --color-border: oklch(100% 0 0 / 0.1);
+          --color-card: oklch(20.8% 0.042 265.755);
+          --color-accent: oklch(92.9% 0.013 255.508);
+        }
+      }
+
+      * { box-sizing: border-box; }
+
+      html {
+        background: var(--color-bg);
+      }
+
+      body {
+        margin: 0 auto;
+        max-width: 680px;
+        padding: 2rem 1.5rem 4rem;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+        font-feature-settings: 'ss01', 'cv11';
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.6;
+      }
+
+      h1, h2, h3, h4 {
+        font-family: var(--font-serif);
+        font-weight: 400;
+        letter-spacing: -0.01em;
+      }
+
+      a {
+        color: var(--color-link);
+      }
+
+      a:hover {
+        color: var(--color-accent);
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 3rem;
+      }
+
+      .wordmark {
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--color-text-muted);
+      }
+
+      .wordmark:hover {
+        color: var(--color-text);
+      }
+
+      nav ul {
+        list-style: none;
+        display: flex;
+        gap: 1.25rem;
+        margin: 0;
+        padding: 0;
+        font-size: 0.9rem;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: var(--color-text-muted);
+      }
+
+      nav a:hover {
+        color: var(--color-text);
+      }
+
+      main {
+        min-height: 50vh;
+      }
+
+      footer {
+        margin-top: 4rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-border);
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="wordmark" href="/">Oskar Lindvall</a>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/thoughts">Thoughts</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>&copy; {new Date().getFullYear()} Oskar Lindvall</p>
+    </footer>
+  </body>
+</html>

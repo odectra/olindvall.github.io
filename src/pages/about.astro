@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StravaFeed from '../components/StravaFeed.astro';
+---
+<Layout title="About">
+  <h1>About</h1>
+
+  <div class="photo-placeholder" role="img" aria-label="Photo placeholder">Photo</div>
+
+  <section>
+    <h2>Professional bio</h2>
+    <p>Placeholder for professional bio — background, roles, and what I work on today.</p>
+  </section>
+
+  <section>
+    <h2>Personal bio</h2>
+    <p>Placeholder for personal bio — outside of work, family, and interests.</p>
+  </section>
+
+  <section>
+    <h2>Links</h2>
+    <ul class="links">
+      <li><a href="https://www.linkedin.com/in/placeholder" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      <li><a href="https://www.strava.com/athletes/placeholder" target="_blank" rel="noopener noreferrer">Strava</a></li>
+      <li><a href="https://www.goodreads.com/user/show/placeholder" target="_blank" rel="noopener noreferrer">Goodreads</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Strava activity</h2>
+    <StravaFeed />
+  </section>
+</Layout>
+
+<style>
+  section {
+    margin-top: 2.5rem;
+  }
+
+  .photo-placeholder {
+    margin-top: 1.5rem;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 1px dashed var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const projects = [
+  {
+    name: 'Fuel calculator',
+    category: 'Training',
+    description: 'Estimate carbohydrate and fluid needs for a given session length and intensity.',
+  },
+  {
+    name: 'Savings calculator',
+    category: 'Finance',
+    description: 'Compound interest calculator for projecting savings growth over time.',
+  },
+  {
+    name: 'FIRE calculator',
+    category: 'Finance',
+    description: 'Estimate a Financial Independence, Retire Early target and timeline.',
+  },
+];
+---
+<Layout title="Projects">
+  <h1>Projects</h1>
+  <ul class="project-list">
+    {projects.map((project) => (
+      <li class="project-card">
+        <span class="category">{project.category}</span>
+        <h2>{project.name}</h2>
+        <p>{project.description}</p>
+        <span class="status">Coming soon</span>
+      </li>
+    ))}
+  </ul>
+</Layout>
+
+<style>
+  .project-list {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .project-card {
+    padding: 1.25rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .project-card h2 {
+    margin: 0.25rem 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .category {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .status {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.2rem 0.5rem;
+  }
+</style>
