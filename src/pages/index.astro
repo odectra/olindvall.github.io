@@ -1,45 +1,23 @@
 ---
-import { getCollection } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-const reflections = (await getCollection('reflections')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
+const intro = await getEntry('home', 'intro');
+const { Content } = await render(intro);
 ---
 <Layout title="Home">
-  <h1>Thoughts</h1>
-  <ul class="reflection-list">
-    {reflections.map((entry) => (
-      <li>
-        <a href={`/reflections/${entry.id}`}>{entry.data.title}</a>
-        <span class="date"> — {entry.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-      </li>
-    ))}
-  </ul>
+  <h1>{intro.data.title}</h1>
+  <div class="content">
+    <Content />
+  </div>
 </Layout>
 
 <style>
-  .reflection-list {
-    list-style: none;
-    margin: 2rem 0 0;
-    padding: 0;
+  .content {
+    margin-top: 1.5rem;
   }
 
-  .reflection-list li {
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .reflection-list a {
-    text-decoration: none;
-  }
-
-  .reflection-list a:hover {
-    text-decoration: underline;
-  }
-
-  .date {
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
+  .content :global(p) {
+    margin: 0 0 1.25rem;
   }
 </style>

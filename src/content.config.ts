@@ -11,4 +11,11 @@ const reflections = defineCollection({
   }),
 });
 
-export const collections = { reflections };
+const home = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/home' }),
+  schema: z.object({
+    title: z.string(),
+  }),
+});
+
+export const collections = { reflections, home };
