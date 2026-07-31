@@ -1,9 +1,7 @@
 ---
-title: Hello and welcome
+title: Hi, I'm Oskar Lindvall
 ---
 
-I'm Oskar Lindvall. This site is a place to collect some reflections that add colour to the picture of me beyond my CV, my results, and my job title.
+This is where I collect thoughts and reflections to add colour to the picture of me beyond CV and title. 
 
-It is partly for me, partly for anyone who wants to understand the person behind the LinkedIn profile.
-
-This is currently a work in progress, so some information is still being worked on. Meanwhile, have a look at my [LinkedIn](/about#links) if you want to learn more about me — thanks.
+This is currently a work in progress, so some information is still being worked on. Meanwhile, have a look at my [LinkedIn](/about#links) if you want to learn more about me — welcome back soon!
