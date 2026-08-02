@@ -3,6 +3,12 @@ import Layout from '../layouts/Layout.astro';
 
 const projects = [
   {
+    name: 'Leaflet',
+    category: 'Journal',
+    description: "A digital notebook for capturing thoughts in seconds — typed or spoken — organized into notebooks you can lock, encrypt, and share. Export (with or without voice recordings) is coming soon, so notes never have to stay stuck on a distant server — you'll be able to pull everything out, keep the history or drop it, and turn it into a local diary if you'd rather.",
+    href: 'https://leaflet.olindvall.se',
+  },
+  {
     name: 'Fuel calculator',
     category: 'Training',
     description: 'A calculator for endurance races — dial in your race duration and target carbs-per-hour to get a fueling plan you can actually follow on race day. Built out of my own swimrun and marathon training.',
@@ -27,7 +33,11 @@ const projects = [
         <span class="category">{project.category}</span>
         <h2>{project.name}</h2>
         <p>{project.description}</p>
-        <span class="status">Coming soon</span>
+        {project.href ? (
+          <a class="status status-live" href={project.href} target="_blank" rel="noopener noreferrer">Visit ↗</a>
+        ) : (
+          <span class="status">Coming soon</span>
+        )}
       </li>
     ))}
   </ul>
@@ -70,5 +80,15 @@ const projects = [
     border: 1px dashed var(--color-border);
     border-radius: var(--radius);
     padding: 0.2rem 0.5rem;
+  }
+
+  .status-live {
+    text-decoration: none;
+    border-style: solid;
+    color: var(--color-text);
+  }
+
+  .status-live:hover {
+    color: var(--color-accent);
   }
 </style>
