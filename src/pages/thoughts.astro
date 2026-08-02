@@ -14,13 +14,13 @@ const sections = [
   {
     heading: 'Exercise',
     paragraphs: [
-      "I train to stay healthy and to compete. Running and swimrun are where I put most of my training time. I try to stay consisten on roughly 40-50 km of running weekly. Additionally, I try to swim 1-2 times per week. I like to compete and push my limits when it counts, but I try to stay disciplined over the long stretches in between, since consistency is what actually moves the needle. It's paid off — I've had very few injuries along the way.",
+      "I train to stay healthy and to compete. Running and swimrun are where I put most of my training time. I try to stay consisten on roughly 40-50 km of running weekly. Additionally, I try to swim 1-2 times per week. I like to compete and push my limits when it counts, but I try to stay disciplined over the long stretches in between, since consistency is what actually moves the needle. It's paid off — I've had very few injuries along the way. I log the training on <a href='https://www.strava.com/athletes/46830295' target='_blank' rel='noopener noreferrer'>Strava</a>.",
     ],
   },
   {
     heading: 'Learning',
     paragraphs: [
-      "Life is about learning and experiences. I'm drawn to books and ideas about how innovations, technologies and people shape our society. I studied mechanical engineering with a MSc in management, innovations and economics at Chalmers. During the last year, I also studied psychology at half-time. The mix of technology, business development and leadership still shapes what I read and how I think.",
+      "Life is about learning and experiences. I'm drawn to books and ideas about how innovations, technologies and people shape our society. I studied mechanical engineering with a MSc in management, innovations and economics at Chalmers. During the last year, I also studied psychology at half-time. The mix of technology, business development and leadership still shapes what I read and how I think. I keep track of what I'm reading on <a href='https://www.goodreads.com/user/show/127870918-oskar-lindvall' target='_blank' rel='noopener noreferrer'>Goodreads</a>.",
     ],
   },
   {
@@ -32,7 +32,7 @@ const sections = [
   {
     heading: 'Career',
     paragraphs: [
-      "My career has mostly been about translating between worlds, and getting people to work together — development and commercial, global and local, systems and users. It's rewarding to have learned enough depth about different perspectives to find clarity on a shared, and justified cause. That throughline has taken me from consulting through PMO leadership to quality systems leadership in a regulated pharma environment today. n 2026 I was selected for the Nova 111 List as one of Sweden's top young professionals in Healthcare & Life Sciences. (Which at minimum confirms I'm still young and have potential.)",
+      "My career has mostly been about translating between worlds, and getting people to work together — development and commercial, global and local, systems and users. It's rewarding to have learned enough depth about different perspectives to find clarity on a shared, and justified cause. That throughline has taken me from consulting through PMO leadership to quality systems leadership in a regulated pharma environment today. n 2026 I was selected for the Nova 111 List as one of Sweden's top young professionals in Healthcare & Life Sciences. (Which at minimum confirms I'm still young and have potential.) More on my background is on <a href='https://www.linkedin.com/in/oskar-lindvall-35735854/' target='_blank' rel='noopener noreferrer'>LinkedIn</a>.",
     ],
   },
 ];
@@ -42,9 +42,9 @@ const sections = [
   {sections.map((section) => (
     <section>
       <h2>{section.heading}</h2>
-      {section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      {section.paragraphs.map((paragraph) => <p set:html={paragraph} />)}
       {section.quote && (
-        <blockquote><p>{section.quote}</p></blockquote>
+        <blockquote><p set:html={section.quote} /></blockquote>
       )}
     </section>
   ))}
