@@ -1,7 +1,7 @@
 ---
 title: Thoughts on leadership  
 date: 2026-07-31
-description: Write down your leadership statement
+description: How writing down my leadership statement provided direction
 tags: [leadership, career]
 ---
 
