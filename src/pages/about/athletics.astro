@@ -1,0 +1,153 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const personalBests = [
+  { distance: '10 km', time: '36:25', year: '2026' },
+  { distance: 'Half marathon (21.1 km)', time: '1:22:07', year: '2025' },
+];
+
+const swimruns = [
+  {
+    place: '4th',
+    event: 'ÖtillÖ Utö Sprint',
+    year: '2025',
+    breakdown: '8 runs (15,990 m) + 7 swims (2,190 m*)',
+    note: '*Swim shortened due to 10°C water temperature',
+  },
+  {
+    place: '4th',
+    event: 'Skatås Sex Sjöar',
+    year: '2026',
+    breakdown: '11 runs (16,600 m) + 10 swims (2,400 m)',
+  },
+  {
+    place: '7th',
+    event: 'ÖtillÖ Gothenburg Sprint',
+    year: '2026',
+    breakdown: '18 runs (18,950 m) + 19 swims (3,840 m)',
+  },
+];
+---
+<Layout title="Athletic results" description="Athletic results of Oskar Lindvall.">
+  <p class="back"><a href="/about">← About</a></p>
+  <h1>Athletic results</h1>
+  <p class="club">Running club: Majornas IK</p>
+
+  <section>
+    <h2>Personal bests</h2>
+    <ul class="entry-list">
+      {personalBests.map((pb) => (
+        <li>
+          <div class="entry-title">{pb.distance}</div>
+          <div class="entry-meta">{pb.time} · {pb.year}</div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Swimruns</h2>
+    <ul class="entry-list">
+      {swimruns.map((race) => (
+        <li>
+          <div class="entry-title">
+            <span class="badge">{race.place} place</span>
+            {race.event}
+            <span class="year">({race.year})</span>
+          </div>
+          <div class="entry-meta">{race.breakdown}</div>
+          {race.note && <div class="entry-note">{race.note}</div>}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <p class="more">Full details on <a href="https://www.strava.com/athletes/46830295" target="_blank" rel="noopener noreferrer">Strava</a>.</p>
+</Layout>
+
+<style>
+  .back {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .back a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    color: var(--color-text);
+  }
+
+  .club {
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+  }
+
+  section {
+    margin-top: 2.5rem;
+  }
+
+  .entry-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .entry-list > li {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .entry-list > li:last-child {
+    border-bottom: none;
+  }
+
+  .entry-title {
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .entry-meta {
+    margin-top: 0.15rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .entry-note {
+    margin-top: 0.25rem;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+
+  .year {
+    font-weight: 400;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .badge {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: 0.05rem 0.4rem;
+  }
+
+  .more {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>

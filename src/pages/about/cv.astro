@@ -1,0 +1,207 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const experience = [
+  {
+    title: 'Associate Director Development Quality — Quality Systems',
+    org: 'AstraZeneca',
+    period: 'Jul 2023 – Present',
+    location: 'Mölndal',
+    current: true,
+  },
+  {
+    title: 'Director, Project Management Office',
+    org: 'Mentice',
+    period: 'Oct 2022 – Jul 2023',
+    location: 'Gothenburg, Sweden',
+  },
+  {
+    title: 'Product Manager — Services & Strategy',
+    org: 'Mentice',
+    period: 'Dec 2021 – Oct 2022',
+    location: 'Gothenburg, Sweden',
+  },
+  {
+    title: 'Project Manager, Medical Device Industry',
+    org: 'Mentice',
+    period: 'Jun 2019 – Dec 2021',
+    location: 'Gothenburg, Sweden',
+  },
+  {
+    title: 'Consultant — Quality & Management',
+    org: 'Knightec',
+    period: 'Sep 2015 – May 2019',
+    assignments: [
+      { title: 'Project Manager', org: 'ABB Robotics — Spot Welding Application Center', period: 'Oct 2018 – Apr 2019' },
+      { title: 'Lead Test Engineer', org: 'Care of Sweden AB', period: 'Jun 2018 – Nov 2018' },
+      { title: 'Validation Engineer', org: 'Fresenius Kabi', period: 'May 2018' },
+      { title: 'Project Manager', org: 'AstraZeneca — Sweden Operations', period: 'Jan 2016 – Mar 2018' },
+    ],
+  },
+];
+
+const education = [
+  {
+    degree: "Master's, Industrial Management — Management and Economics of Innovation",
+    school: 'Chalmers University of Technology',
+    period: '2013 – 2015',
+  },
+  {
+    degree: 'Occupational and Organisational Psychology',
+    school: 'University of Gothenburg',
+    period: '2014 – 2015',
+  },
+  {
+    degree: "Bachelor's, Mechanical Engineering",
+    school: 'Chalmers University of Technology',
+    period: '2010 – 2013',
+  },
+];
+
+const other = [
+  {
+    title: 'Nova 111 List — Healthcare & Life Sciences',
+    description: 'Selected as a top young professional talent in Sweden.',
+    period: '2026',
+  },
+];
+---
+<Layout title="CV" description="Professional CV of Oskar Lindvall.">
+  <p class="back"><a href="/about">← About</a></p>
+  <h1>CV</h1>
+
+  <section>
+    <h2>Experience</h2>
+    <ul class="entry-list">
+      {experience.map((job) => (
+        <li>
+          <div class="entry-title">
+            {job.title}
+            {job.current && <span class="badge">Current</span>}
+          </div>
+          <div class="entry-meta">{job.org} · {job.period}{job.location && ` · ${job.location}`}</div>
+          {job.assignments && (
+            <ul class="sub-list">
+              {job.assignments.map((a) => (
+                <li>
+                  <div class="entry-title entry-title-sub">{a.title}</div>
+                  <div class="entry-meta">{a.org} · {a.period}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    <ul class="entry-list">
+      {education.map((item) => (
+        <li>
+          <div class="entry-title">{item.degree}</div>
+          <div class="entry-meta">{item.school} · {item.period}</div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Other</h2>
+    <ul class="entry-list">
+      {other.map((item) => (
+        <li>
+          <div class="entry-title">{item.title}</div>
+          <div class="entry-meta">{item.description} · {item.period}</div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <p class="more">Full details on <a href="https://www.linkedin.com/in/oskar-lindvall-35735854/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.</p>
+</Layout>
+
+<style>
+  .back {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .back a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    color: var(--color-text);
+  }
+
+  section {
+    margin-top: 2.5rem;
+  }
+
+  .entry-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .entry-list > li {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .entry-list > li:last-child {
+    border-bottom: none;
+  }
+
+  .entry-title {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .entry-meta {
+    margin-top: 0.15rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .badge {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius);
+    padding: 0.05rem 0.4rem;
+  }
+
+  .sub-list {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0 0 0 1.25rem;
+    border-left: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .entry-title-sub {
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .more {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>
