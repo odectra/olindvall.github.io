@@ -24,25 +24,27 @@ const { title, description = 'Personal site of Oskar Lindvall.' } = Astro.props;
       :root {
         --font-serif: 'Fraunces', ui-serif, Georgia, serif;
         --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-        --radius: 0.25rem;
+        --radius: 0.5rem;
 
-        --color-bg: oklch(97.2% 0.004 230);
-        --color-text: oklch(21% 0.025 240);
-        --color-text-muted: oklch(47% 0.02 235);
-        --color-border: oklch(88.5% 0.008 230);
-        --color-card: oklch(99.5% 0.003 230);
-        --color-accent: oklch(47% 0.085 218);
+        --color-bg: oklch(97.6% 0.014 78);
+        --color-text: oklch(24% 0.02 55);
+        --color-text-muted: oklch(46% 0.024 55);
+        --color-border: oklch(89% 0.015 70);
+        --color-card: oklch(99% 0.009 78);
+        --color-accent: oklch(53% 0.12 38);
         --color-link: var(--color-text);
+        --shadow-card: 0 1px 2px oklch(24% 0.02 55 / 0.05), 0 4px 12px oklch(24% 0.02 55 / 0.04);
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --color-bg: oklch(12.9% 0.042 264.695);
-          --color-text: oklch(98.4% 0.003 247.858);
-          --color-text-muted: oklch(70.4% 0.04 256.788);
-          --color-border: oklch(100% 0 0 / 0.1);
-          --color-card: oklch(20.8% 0.042 265.755);
-          --color-accent: oklch(92.9% 0.013 255.508);
+          --color-bg: oklch(16% 0.018 48);
+          --color-text: oklch(95.5% 0.012 75);
+          --color-text-muted: oklch(69% 0.02 60);
+          --color-border: oklch(31% 0.02 50);
+          --color-card: oklch(20.5% 0.018 50);
+          --color-accent: oklch(72% 0.13 55);
+          --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.2), 0 4px 12px oklch(0% 0 0 / 0.16);
         }
       }
 
@@ -76,6 +78,15 @@ const { title, description = 'Personal site of Oskar Lindvall.' } = Astro.props;
 
       a:hover {
         color: var(--color-accent);
+      }
+
+      main :global(a) {
+        color: var(--color-accent);
+        text-decoration-color: var(--color-border);
+      }
+
+      main :global(a:hover) {
+        text-decoration-color: currentColor;
       }
 
       header {
