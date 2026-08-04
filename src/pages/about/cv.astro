@@ -63,6 +63,7 @@ const other = [
     title: 'Nova 111 List — Healthcare & Life Sciences',
     description: 'Selected as a top young professional talent in Sweden.',
     period: '2026',
+    href: 'https://novatalent.com/111-list/the-nova-111-list-sweden-2026',
   },
 ];
 ---
@@ -112,7 +113,11 @@ const other = [
     <ul class="entry-list">
       {other.map((item) => (
         <li>
-          <div class="entry-title">{item.title}</div>
+          <div class="entry-title">
+            {item.href ? (
+              <a href={item.href} target="_blank" rel="noopener noreferrer">{item.title}</a>
+            ) : item.title}
+          </div>
           <div class="entry-meta">{item.description} · {item.period}</div>
         </li>
       ))}
