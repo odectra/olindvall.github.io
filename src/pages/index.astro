@@ -9,13 +9,45 @@ const { Content } = await render(intro);
   title="Home"
   description="Personal site of Oskar Lindvall — Associate Director at AstraZeneca, endurance athlete, and builder of small web tools. Reflections on leadership, training, learning, and family."
 >
-  <h1>{intro.data.title}</h1>
+  <div class="intro">
+    <a href="/about" class="avatar-link" aria-label="About Oskar Lindvall">
+      <img class="avatar" src="/images/about/oskar-portrait.jpg" alt="Oskar Lindvall" width="64" height="64" />
+    </a>
+    <h1>{intro.data.title}</h1>
+  </div>
   <div class="content">
     <Content />
   </div>
 </Layout>
 
 <style>
+  .intro {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .avatar-link {
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+  }
+
+  .avatar-link:hover .avatar {
+    border-color: var(--color-accent);
+  }
+
+  .intro h1 {
+    margin: 0;
+  }
+
   .content {
     margin-top: 1.5rem;
   }
