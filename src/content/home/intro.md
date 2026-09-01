@@ -2,7 +2,7 @@
 title: Hi, I'm Oskar Lindvall! 👋
 ---
 
-This is my personal website. I will collect information beyond what you can see from a resume. 
+This is my personal website. It is a place to learn more about me, but really somewhere for me to collect my thoughts and experiments.
 
 Under [Reflections](/reflections) I will publish blog-like articles about topics I've thought about lately. 
 
