@@ -5,6 +5,7 @@ const experience = [
   {
     title: 'Associate Director Development Quality — Quality Systems',
     org: 'AstraZeneca',
+    logo: 'AZ',
     period: 'Jul 2023 – Present',
     location: 'Mölndal',
     current: true,
@@ -12,30 +13,34 @@ const experience = [
   {
     title: 'Director, Project Management Office',
     org: 'Mentice',
+    logo: 'MN',
     period: 'Oct 2022 – Jul 2023',
     location: 'Gothenburg, Sweden',
   },
   {
     title: 'Product Manager — Services & Strategy',
     org: 'Mentice',
+    logo: 'MN',
     period: 'Dec 2021 – Oct 2022',
     location: 'Gothenburg, Sweden',
   },
   {
     title: 'Project Manager, Medical Device Industry',
     org: 'Mentice',
+    logo: 'MN',
     period: 'Jun 2019 – Dec 2021',
     location: 'Gothenburg, Sweden',
   },
   {
     title: 'Consultant — Quality & Management',
     org: 'Knightec',
+    logo: 'KN',
     period: 'Sep 2015 – May 2019',
     assignments: [
-      { title: 'Project Manager', org: 'ABB Robotics — Spot Welding Application Center', period: 'Oct 2018 – Apr 2019' },
-      { title: 'Lead Test Engineer', org: 'Care of Sweden AB', period: 'Jun 2018 – Nov 2018' },
-      { title: 'Validation Engineer', org: 'Fresenius Kabi', period: 'May 2018' },
-      { title: 'Project Manager', org: 'AstraZeneca — Sweden Operations', period: 'Jan 2016 – Mar 2018' },
+      { title: 'Project Manager', org: 'ABB Robotics — Spot Welding Application Center', logo: 'ABB', period: 'Oct 2018 – Apr 2019' },
+      { title: 'Lead Test Engineer', org: 'Care of Sweden AB', logo: 'CS', period: 'Jun 2018 – Nov 2018' },
+      { title: 'Validation Engineer', org: 'Fresenius Kabi', logo: 'FK', period: 'May 2018' },
+      { title: 'Project Manager', org: 'AstraZeneca — Sweden Operations', logo: 'AZ', period: 'Jan 2016 – Mar 2018' },
     ],
   },
 ];
@@ -75,22 +80,28 @@ const other = [
     <h2>Experience</h2>
     <ul class="entry-list">
       {experience.map((job) => (
-        <li>
-          <div class="entry-title">
-            {job.title}
-            {job.current && <span class="badge">Current</span>}
+        <li class="entry-row">
+          <div class="logo" aria-hidden="true">{job.logo}</div>
+          <div class="entry-body">
+            <div class="entry-title">
+              {job.title}
+              {job.current && <span class="badge">Current</span>}
+            </div>
+            <div class="entry-meta">{job.org} · {job.period}{job.location && ` · ${job.location}`}</div>
+            {job.assignments && (
+              <ul class="sub-list">
+                {job.assignments.map((a) => (
+                  <li class="entry-row">
+                    <div class="logo logo-sub" aria-hidden="true">{a.logo}</div>
+                    <div class="entry-body">
+                      <div class="entry-title entry-title-sub">{a.title}</div>
+                      <div class="entry-meta">{a.org} · {a.period}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <div class="entry-meta">{job.org} · {job.period}{job.location && ` · ${job.location}`}</div>
-          {job.assignments && (
-            <ul class="sub-list">
-              {job.assignments.map((a) => (
-                <li>
-                  <div class="entry-title entry-title-sub">{a.title}</div>
-                  <div class="entry-meta">{a.org} · {a.period}</div>
-                </li>
-              ))}
-            </ul>
-          )}
         </li>
       ))}
     </ul>
@@ -159,6 +170,40 @@ const other = [
 
   .entry-list > li:last-child {
     border-bottom: none;
+  }
+
+  .entry-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .entry-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .logo {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .logo-sub {
+    width: 1.6rem;
+    height: 1.6rem;
+    font-size: 0.6rem;
   }
 
   .entry-title {
