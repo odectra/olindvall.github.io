@@ -11,6 +11,8 @@ As part of a leadership program at AstraZeneca few years ago, we we were tasked 
 
 I do not follow it perfectly, but I revisit it at times whenever I need direction. 
 
+More on how I think about leadership day to day is on the [Thoughts](/thoughts) page.
+
 **Leadership Statement**
 
 _"I believe in the intrinsic value of respect and fairness. I act on data, apply systems-thinking and coaching to navigate the complexities of decision-making to guide my team. I'm committed to fostering empowerment, I'm advocating for my team, and I'm confronting challenges with empathy and clarity. I can learn from anyone, I lead by example, and I'm only as good as my last deliverable"_

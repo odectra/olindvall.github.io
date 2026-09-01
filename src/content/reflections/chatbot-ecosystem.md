@@ -57,4 +57,6 @@ So much is happening right now, and plenty of people claim to have the answers. 
 
 Oskar Lindvall, August 2026
 
+More of my thoughts on leadership and career are on the [Thoughts](/thoughts) page.
+
 ![Chatbot Agent Ecosystem](/reflections/chatbot-ecosystem/photo1.jpg)

@@ -5,7 +5,10 @@ import Layout from '../layouts/Layout.astro';
 const intro = await getEntry('home', 'intro');
 const { Content } = await render(intro);
 ---
-<Layout title="Home">
+<Layout
+  title="Home"
+  description="Personal site of Oskar Lindvall — Associate Director at AstraZeneca, endurance athlete, and builder of small web tools. Reflections on leadership, training, learning, and family."
+>
   <h1>{intro.data.title}</h1>
   <div class="content">
     <Content />

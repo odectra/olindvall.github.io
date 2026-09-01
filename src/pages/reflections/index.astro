@@ -6,7 +6,10 @@ const reflections = (await getCollection('reflections')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 ---
-<Layout title="Reflections">
+<Layout
+  title="Reflections"
+  description="All reflections written by Oskar Lindvall — essays on leadership, AI, learning, and building things."
+>
   <h1>Reflections</h1>
   <ul class="reflection-list">
     {reflections.map((entry) => (

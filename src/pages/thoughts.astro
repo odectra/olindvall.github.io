@@ -10,6 +10,7 @@ const sections = [
     ],
     quote:
       "I believe in the intrinsic value of respect and fairness. I act on data, apply systems-thinking and coaching to navigate the complexities of decision-making to guide my team. I'm committed to fostering empowerment, I'm advocating for my team, and I'm confronting challenges with empathy and clarity. I can learn from anyone, I lead by example, and I'm only as good as my last deliverable.",
+    readMore: { href: '/reflections/on-leadership-and-listening', label: 'More on how this statement came together' },
   },
   {
     heading: 'Exercise',
@@ -34,17 +35,24 @@ const sections = [
     paragraphs: [
       "My career has mostly been about translating between worlds, and getting people to work together — development and commercial, global and local, systems and users. It's rewarding to have learned enough depth about different perspectives to find clarity on a shared, and justified cause. That throughline has taken me from consulting through PMO leadership to quality systems leadership in a regulated pharma environment today. n 2026 I was selected for the Nova 111 List as one of Sweden's top young professionals in Healthcare & Life Sciences. (Which at minimum confirms I'm still young and have potential.) More on my background is on <a href='https://www.linkedin.com/in/oskar-lindvall-35735854/' target='_blank' rel='noopener noreferrer'>LinkedIn</a>.",
     ],
+    readMore: { href: '/reflections/chatbot-ecosystem', label: 'More on how I lead AI adoption on my team' },
   },
 ];
 ---
-<Layout title="Thoughts on...">
+<Layout
+  title="Thoughts on..."
+  description="Oskar Lindvall's thoughts on leadership, exercise, learning, family, and career."
+>
   <h1>Thoughts on...</h1>
   {sections.map((section) => (
-    <section>
+    <section id={section.heading.toLowerCase()}>
       <h2>{section.heading}</h2>
       {section.paragraphs.map((paragraph) => <p set:html={paragraph} />)}
       {section.quote && (
         <blockquote><p set:html={section.quote} /></blockquote>
+      )}
+      {section.readMore && (
+        <p class="read-more"><a href={section.readMore.href}>{section.readMore.label} →</a></p>
       )}
     </section>
   ))}
@@ -53,6 +61,11 @@ const sections = [
 <style>
   section {
     margin-top: 2.5rem;
+  }
+
+  .read-more {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
   }
 
   blockquote {

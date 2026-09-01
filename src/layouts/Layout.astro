@@ -2,9 +2,66 @@
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishDate?: Date;
+  tags?: string[];
 }
 
-const { title, description = 'Personal site of Oskar Lindvall.' } = Astro.props;
+const {
+  title,
+  description = 'Personal site of Oskar Lindvall — Associate Director at AstraZeneca, endurance athlete, and builder of small web tools. Reflections on leadership, training, and learning.',
+  image = '/images/about/oskar-portrait.jpg',
+  type = 'website',
+  publishDate,
+  tags = [],
+} = Astro.props;
+
+const pageTitle = `${title} — Oskar Lindvall`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(image, Astro.site);
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Oskar Lindvall',
+  url: Astro.site?.toString(),
+  image: ogImageURL.toString(),
+  jobTitle: 'Associate Director Development Quality — Quality Systems',
+  worksFor: {
+    '@type': 'Organization',
+    name: 'AstraZeneca',
+  },
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Chalmers University of Technology',
+  },
+  sameAs: [
+    'https://www.linkedin.com/in/oskar-lindvall-35735854/',
+    'https://www.strava.com/athletes/46830295',
+    'https://www.goodreads.com/user/show/127870918-oskar-lindvall',
+    'https://github.com/odectra',
+  ],
+};
+
+const articleSchema =
+  type === 'article' && publishDate
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        image: ogImageURL.toString(),
+        datePublished: publishDate.toISOString(),
+        author: {
+          '@type': 'Person',
+          name: 'Oskar Lindvall',
+          url: Astro.site?.toString(),
+        },
+        keywords: tags.join(', '),
+        mainEntityOfPage: canonicalURL.toString(),
+      }
+    : null;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +70,32 @@ const { title, description = 'Personal site of Oskar Lindvall.' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <title>{title} — Oskar Lindvall</title>
+    <title>{pageTitle}</title>
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Oskar Lindvall" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    {type === 'article' && publishDate && (
+      <meta property="article:published_time" content={publishDate.toISOString()} />
+    )}
+    {type === 'article' && tags.map((tag) => <meta property="article:tag" content={tag} />)}
+
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+    {articleSchema && (
+      <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+    )}
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
