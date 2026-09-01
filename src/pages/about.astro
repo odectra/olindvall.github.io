@@ -8,7 +8,19 @@ import StravaFeed from '../components/StravaFeed.astro';
 >
   <h1>About</h1>
 
-  <img class="photo" src="/images/about/oskar-portrait.jpg" alt="Oskar Lindvall" width="160" height="160" />
+  <div class="profile">
+    <img class="photo" src="/images/about/oskar-portrait.jpg" alt="Oskar Lindvall" width="160" height="160" />
+    <div class="profile-links">
+      <a class="pill" href="/about/cv">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" /><path d="M14 2v6h6" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
+        Professional CV
+      </a>
+      <a class="pill" href="/about/athletics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="6" /><path d="M8.5 13.5 7 22l5-3 5 3-1.5-8.5" /></svg>
+        Athletic results
+      </a>
+    </div>
+  </div>
 
   <section>
     <h2>Professional bio</h2>
@@ -19,14 +31,6 @@ import StravaFeed from '../components/StravaFeed.astro';
     <h2>Personal bio</h2>
     <p>Outside of work, I balance training, family life with young kids, and career. I live with my wife Hanna and our two daughters Elvina (born 2022) and Malva (born 2026).</p>
     <p>I enjoy exercising — mostly running and swimruns. I train to stay healthy, to clear my mind, and to compete and challenge myself. Hanna and I are part of the same track-and-field club Majornas IK, and we prioritise training for both of us despite busy days. We feel better and manage stress and high workload much better as a result of it. Most importantly, exercise and movement should be fun and a natural part of life. Kids will do what you do — not what you say — so we try to lead by example. More on training and family is on the <a href="/thoughts#exercise">Thoughts</a> page.</p>
-  </section>
-
-  <section>
-    <h2>More</h2>
-    <ul class="links">
-      <li><a href="/about/cv">Professional CV</a></li>
-      <li><a href="/about/athletics">Athletic results</a></li>
-    </ul>
   </section>
 
   <section>
@@ -49,13 +53,47 @@ import StravaFeed from '../components/StravaFeed.astro';
     margin-top: 2.5rem;
   }
 
-  .photo {
+  .profile {
     margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .photo {
     width: 160px;
     height: 160px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .profile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    box-shadow: var(--shadow-card);
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+  }
+
+  .pill:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
   }
 
   .links {
