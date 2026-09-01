@@ -5,7 +5,7 @@ const experience = [
   {
     title: 'Associate Director Development Quality — Quality Systems',
     org: 'AstraZeneca',
-    logo: 'AZ',
+    logoImage: '/images/logos/astrazeneca.png',
     period: 'Jul 2023 – Present',
     location: 'Mölndal',
     current: true,
@@ -13,21 +13,21 @@ const experience = [
   {
     title: 'Director, Project Management Office',
     org: 'Mentice',
-    logo: 'MN',
+    logoImage: '/images/logos/mentice.png',
     period: 'Oct 2022 – Jul 2023',
     location: 'Gothenburg, Sweden',
   },
   {
     title: 'Product Manager — Services & Strategy',
     org: 'Mentice',
-    logo: 'MN',
+    logoImage: '/images/logos/mentice.png',
     period: 'Dec 2021 – Oct 2022',
     location: 'Gothenburg, Sweden',
   },
   {
     title: 'Project Manager, Medical Device Industry',
     org: 'Mentice',
-    logo: 'MN',
+    logoImage: '/images/logos/mentice.png',
     period: 'Jun 2019 – Dec 2021',
     location: 'Gothenburg, Sweden',
   },
@@ -37,10 +37,10 @@ const experience = [
     logo: 'KN',
     period: 'Sep 2015 – May 2019',
     assignments: [
-      { title: 'Project Manager', org: 'ABB Robotics — Spot Welding Application Center', logo: 'ABB', period: 'Oct 2018 – Apr 2019' },
+      { title: 'Project Manager', org: 'ABB Robotics — Spot Welding Application Center', logoImage: '/images/logos/abb.png', period: 'Oct 2018 – Apr 2019' },
       { title: 'Lead Test Engineer', org: 'Care of Sweden AB', logo: 'CS', period: 'Jun 2018 – Nov 2018' },
-      { title: 'Validation Engineer', org: 'Fresenius Kabi', logo: 'FK', period: 'May 2018' },
-      { title: 'Project Manager', org: 'AstraZeneca — Sweden Operations', logo: 'AZ', period: 'Jan 2016 – Mar 2018' },
+      { title: 'Validation Engineer', org: 'Fresenius Kabi', logoImage: '/images/logos/fresenius-kabi.jpg', period: 'May 2018' },
+      { title: 'Project Manager', org: 'AstraZeneca — Sweden Operations', logoImage: '/images/logos/astrazeneca.png', period: 'Jan 2016 – Mar 2018' },
     ],
   },
 ];
@@ -49,16 +49,19 @@ const education = [
   {
     degree: "Master's, Industrial Management — Management and Economics of Innovation",
     school: 'Chalmers University of Technology',
+    logoImage: '/images/logos/chalmers.jpg',
     period: '2013 – 2015',
   },
   {
     degree: 'Occupational and Organisational Psychology',
     school: 'University of Gothenburg',
+    logoImage: '/images/logos/university-of-gothenburg.png',
     period: '2014 – 2015',
   },
   {
     degree: "Bachelor's, Mechanical Engineering",
     school: 'Chalmers University of Technology',
+    logoImage: '/images/logos/chalmers.jpg',
     period: '2010 – 2013',
   },
 ];
@@ -67,6 +70,7 @@ const other = [
   {
     title: 'Nova 111 List — Healthcare & Life Sciences',
     description: 'Selected as a top young professional talent in Sweden.',
+    logoImage: '/images/logos/nova-talent.png',
     period: '2026',
     href: 'https://novatalent.com/111-list/the-nova-111-list-sweden-2026',
   },
@@ -81,7 +85,11 @@ const other = [
     <ul class="entry-list">
       {experience.map((job) => (
         <li class="entry-row">
-          <div class="logo" aria-hidden="true">{job.logo}</div>
+          {job.logoImage ? (
+            <img class="logo logo-img" src={job.logoImage} alt={`${job.org} logo`} width="32" height="32" />
+          ) : (
+            <div class="logo" aria-hidden="true">{job.logo}</div>
+          )}
           <div class="entry-body">
             <div class="entry-title">
               {job.title}
@@ -92,7 +100,11 @@ const other = [
               <ul class="sub-list">
                 {job.assignments.map((a) => (
                   <li class="entry-row">
-                    <div class="logo logo-sub" aria-hidden="true">{a.logo}</div>
+                    {a.logoImage ? (
+                      <img class="logo logo-sub logo-img" src={a.logoImage} alt={`${a.org} logo`} width="26" height="26" />
+                    ) : (
+                      <div class="logo logo-sub" aria-hidden="true">{a.logo}</div>
+                    )}
                     <div class="entry-body">
                       <div class="entry-title entry-title-sub">{a.title}</div>
                       <div class="entry-meta">{a.org} · {a.period}</div>
@@ -111,9 +123,16 @@ const other = [
     <h2>Education</h2>
     <ul class="entry-list">
       {education.map((item) => (
-        <li>
-          <div class="entry-title">{item.degree}</div>
-          <div class="entry-meta">{item.school} · {item.period}</div>
+        <li class="entry-row">
+          {item.logoImage ? (
+            <img class="logo logo-img" src={item.logoImage} alt={`${item.school} logo`} width="32" height="32" />
+          ) : (
+            <div class="logo" aria-hidden="true">{item.school.slice(0, 2).toUpperCase()}</div>
+          )}
+          <div class="entry-body">
+            <div class="entry-title">{item.degree}</div>
+            <div class="entry-meta">{item.school} · {item.period}</div>
+          </div>
         </li>
       ))}
     </ul>
@@ -123,13 +142,20 @@ const other = [
     <h2>Other</h2>
     <ul class="entry-list">
       {other.map((item) => (
-        <li>
-          <div class="entry-title">
-            {item.href ? (
-              <a href={item.href} target="_blank" rel="noopener noreferrer">{item.title}</a>
-            ) : item.title}
+        <li class="entry-row">
+          {item.logoImage ? (
+            <img class="logo logo-img" src={item.logoImage} alt={`${item.title} logo`} width="32" height="32" />
+          ) : (
+            <div class="logo" aria-hidden="true">{item.title.slice(0, 2).toUpperCase()}</div>
+          )}
+          <div class="entry-body">
+            <div class="entry-title">
+              {item.href ? (
+                <a href={item.href} target="_blank" rel="noopener noreferrer">{item.title}</a>
+              ) : item.title}
+            </div>
+            <div class="entry-meta">{item.description} · {item.period}</div>
           </div>
-          <div class="entry-meta">{item.description} · {item.period}</div>
         </li>
       ))}
     </ul>
@@ -204,6 +230,18 @@ const other = [
     width: 1.6rem;
     height: 1.6rem;
     font-size: 0.6rem;
+  }
+
+  .logo.logo-img {
+    box-sizing: border-box;
+    border-radius: 0.4rem;
+    padding: 0.3rem;
+    background: #fff;
+    object-fit: contain;
+  }
+
+  .logo-sub.logo-img {
+    padding: 0.2rem;
   }
 
   .entry-title {
