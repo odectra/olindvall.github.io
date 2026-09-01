@@ -39,6 +39,11 @@ const swimruns = [
   <h1>Athletic results</h1>
   <p class="club">Running club: Majornas IK</p>
 
+  <figure class="trail-photo">
+    <img src="/images/about/trail-run-sunset.jpg" alt="Sunset over the trails in the local mountains" width="1360" height="1020" />
+    <figcaption>Sunset on a trail run in the local mountains</figcaption>
+  </figure>
+
   <section>
     <h2>Personal bests</h2>
     <ul class="entry-list">
@@ -89,6 +94,23 @@ const swimruns = [
   .club {
     margin-top: 1rem;
     color: var(--color-text-muted);
+  }
+
+  .trail-photo {
+    margin: 1.5rem 0 0;
+  }
+
+  .trail-photo img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    display: block;
+  }
+
+  .trail-photo figcaption {
+    margin-top: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
   }
 
   section {

@@ -5,7 +5,7 @@ import StravaFeed from '../components/StravaFeed.astro';
 <Layout title="About">
   <h1>About</h1>
 
-  <div class="photo-placeholder" role="img" aria-label="Photo placeholder">Photo</div>
+  <img class="photo" src="/images/about/oskar-portrait.jpg" alt="Oskar Lindvall" width="160" height="160" />
 
   <section>
     <h2>Professional bio</h2>
@@ -45,17 +45,13 @@ import StravaFeed from '../components/StravaFeed.astro';
     margin-top: 2.5rem;
   }
 
-  .photo-placeholder {
+  .photo {
     margin-top: 1.5rem;
     width: 160px;
     height: 160px;
     border-radius: 50%;
-    border: 1px dashed var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
   }
 
   .links {
