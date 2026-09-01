@@ -1,5 +1,5 @@
 ---
-title: Hi, I'm Oskar Lindvall.
+title: Hi, I'm Oskar Lindvall! 👋
 ---
 
 This is my personal website. I will collect information beyond what you can see from a resume. 
