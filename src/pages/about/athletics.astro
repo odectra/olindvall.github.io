@@ -34,6 +34,8 @@ const swimruns = [
     place: '4th',
     event: 'ÖtillÖ Utö Sprint',
     year: '2025',
+    time: '2:02:57',
+    href: 'https://www.sportstiming.dk/results/certificate/6974255/individual',
     breakdown: '8 runs (15,990 m) + 7 swims (nominal 2,190 m*)',
     note: '*Swim was shortened due to 10°C water temperature; actual distance not published',
   },
@@ -47,12 +49,16 @@ const swimruns = [
     place: '7th',
     event: 'ÖtillÖ Gothenburg Sprint',
     year: '2026',
+    time: '3:01:49',
+    href: 'https://www.sportstiming.dk/results/certificate/8214704/individual',
     breakdown: '18 runs (18,950 m) + 19 swims (3,840 m)',
   },
   {
     place: '9th',
     event: 'ÖtillÖ Gothenburg Sprint',
     year: '2025',
+    time: '3:05:48',
+    href: 'https://www.sportstiming.dk/results/certificate/6841304/individual',
     breakdown: '18 runs (18,950 m) + 19 swims (3,840 m)',
   },
 ];
@@ -100,10 +106,12 @@ const swimruns = [
         <li>
           <div class="entry-title">
             <span class="badge">{race.place} place</span>
-            {race.event}
+            {race.href ? (
+              <a href={race.href} target="_blank" rel="noopener noreferrer">{race.event}</a>
+            ) : race.event}
             <span class="year">({race.year})</span>
           </div>
-          <div class="entry-meta">{race.breakdown}</div>
+          <div class="entry-meta">{race.time && `${race.time} · `}{race.breakdown}</div>
           {race.note && <div class="entry-note">{race.note}</div>}
         </li>
       ))}
