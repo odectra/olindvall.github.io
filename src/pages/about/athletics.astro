@@ -2,8 +2,21 @@
 import Layout from '../../layouts/Layout.astro';
 
 const personalBests = [
-  { distance: '10 km', time: '36:25', year: '2026' },
-  { distance: 'Half marathon (21.1 km)', time: '1:22:07', year: '2025' },
+  {
+    distance: '10 km',
+    time: '36:25',
+    year: '2026',
+    event: 'Varvetmilen Göteborg',
+    href: 'https://goteborgsvarvet.r.mikatiming.com/2026/?content=detail&fpid=search&pid=search&idp=9TG4PPOP2E2858&lang=EN_CAP&event=VMG_9TG4PPOP3D9&search%5Bname%5D=Lindva&search_event=VMG_9TG4PPOP3D9',
+  },
+  {
+    distance: 'Half marathon (21.1 km)',
+    time: '1:22:07',
+    year: '2025',
+    event: 'Gothenburg Marathon',
+    href: 'https://goteborgmarathon.itsyourrace.com/Results/15520/2025/138039/1827',
+    note: 'Arranged by Solvikingarna.',
+  },
 ];
 
 const swimruns = [
@@ -50,7 +63,8 @@ const swimruns = [
       {personalBests.map((pb) => (
         <li>
           <div class="entry-title">{pb.distance}</div>
-          <div class="entry-meta">{pb.time} · {pb.year}</div>
+          <div class="entry-meta">{pb.time} · <a href={pb.href} target="_blank" rel="noopener noreferrer">{pb.event}</a> · {pb.year}</div>
+          {pb.note && <div class="entry-note">{pb.note}</div>}
         </li>
       ))}
     </ul>
