@@ -19,6 +19,16 @@ const personalBests = [
   },
 ];
 
+const otherResults = [
+  {
+    distance: 'Half marathon (21.1 km)',
+    time: '1:23:11',
+    year: '2026',
+    event: 'Göteborgsvarvet',
+    href: 'https://goteborgsvarvet.r.mikatiming.com/2026/?content=detail&fpid=search&pid=search&idp=9TG4PPOP2D632C&lang=EN_CAP&event=GV_9TG4PPOP3D9&search%5Bname%5D=Lindva&search_event=GV_9TG4PPOP3D9',
+  },
+];
+
 const swimruns = [
   {
     place: '4th',
@@ -65,6 +75,19 @@ const swimruns = [
           <div class="entry-title">{pb.distance}</div>
           <div class="entry-meta">{pb.time} · <a href={pb.href} target="_blank" rel="noopener noreferrer">{pb.event}</a> · {pb.year}</div>
           {pb.note && <div class="entry-note">{pb.note}</div>}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Other results</h2>
+    <ul class="entry-list">
+      {otherResults.map((race) => (
+        <li>
+          <div class="entry-title">{race.distance}</div>
+          <div class="entry-meta">{race.time} · <a href={race.href} target="_blank" rel="noopener noreferrer">{race.event}</a> · {race.year}</div>
+          {race.note && <div class="entry-note">{race.note}</div>}
         </li>
       ))}
     </ul>
