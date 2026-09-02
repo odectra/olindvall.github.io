@@ -1,0 +1,599 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout
+  title="Savings & FIRE Calculator"
+  description="Project how regular saving and compound interest grow over time, and estimate your path to financial independence (FIRE) — how much you need, and how long it will take."
+>
+  <h1>Savings & FIRE Calculator</h1>
+  <p class="intro">
+    Plug in your numbers to see how regular saving and compound interest grow over time — or
+    switch to the FIRE tab to estimate how much you need to reach financial independence, and how
+    long it will take at your current savings rate.
+  </p>
+
+  <div class="field currency-field">
+    <label for="currency">Currency</label>
+    <select id="currency">
+      <option value="USD">USD — $</option>
+      <option value="EUR">EUR — €</option>
+      <option value="GBP">GBP — £</option>
+      <option value="SEK">SEK — kr</option>
+      <option value="NOK">NOK — kr</option>
+      <option value="DKK">DKK — kr</option>
+      <option value="CHF">CHF</option>
+    </select>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Calculator mode">
+    <button type="button" id="tab-savings" class="tab active" role="tab" aria-selected="true" aria-controls="panel-savings" data-tab="savings">Savings & compound interest</button>
+    <button type="button" id="tab-fire" class="tab" role="tab" aria-selected="false" aria-controls="panel-fire" data-tab="fire">FIRE — financial independence</button>
+  </div>
+
+  <section id="panel-savings" class="panel" role="tabpanel" aria-labelledby="tab-savings">
+    <div class="field-grid">
+      <div class="field">
+        <label for="sv-start">Starting amount</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="sv-start" value="10000" />
+      </div>
+      <div class="field">
+        <label for="sv-monthly">Monthly contribution</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="sv-monthly" value="500" />
+      </div>
+      <div class="field">
+        <label for="sv-return">Expected annual return (%)</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="sv-return" value="7" />
+      </div>
+      <div class="field">
+        <label for="sv-years">Years</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="sv-years" value="20" />
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="stat">
+        <span class="stat-label">Future value</span>
+        <span class="stat-value" id="sv-total"></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Total contributed</span>
+        <span class="stat-value" id="sv-contributed"></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Total interest earned</span>
+        <span class="stat-value" id="sv-interest"></span>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="sv-chart" role="img" aria-label="Chart of savings balance and contributions over time"></svg>
+      <div class="legend">
+        <span><i class="swatch swatch-accent"></i>Balance</span>
+        <span><i class="swatch swatch-muted"></i>Contributed</span>
+      </div>
+    </div>
+
+    <p class="disclaimer">Estimates only — assumes a constant annual return, compounded monthly, and ignores taxes, fees, and inflation.</p>
+  </section>
+
+  <section id="panel-fire" class="panel" role="tabpanel" aria-labelledby="tab-fire" hidden>
+    <div class="field-grid">
+      <div class="field">
+        <label for="fi-expenses">Monthly expenses (today)</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="fi-expenses" value="2500" />
+      </div>
+      <div class="field">
+        <label for="fi-swr">Safe withdrawal rate (%)</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="fi-swr" value="4" />
+      </div>
+      <div class="field">
+        <label for="fi-current">Current savings & investments</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="fi-current" value="20000" />
+      </div>
+      <div class="field">
+        <label for="fi-monthly">Monthly contribution</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="fi-monthly" value="800" />
+      </div>
+      <div class="field">
+        <label for="fi-return">Expected annual return (%)</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="fi-return" value="6" />
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="stat">
+        <span class="stat-label">FIRE number</span>
+        <span class="stat-value" id="fi-number"></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Time to financial independence</span>
+        <span class="stat-value" id="fi-years"></span>
+      </div>
+    </div>
+    <p class="fire-date" id="fi-date"></p>
+
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill" id="fi-progress-bar"></div></div>
+      <span class="progress-label" id="fi-progress-label"></span>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="fi-chart" role="img" aria-label="Chart of projected net worth against the FIRE target"></svg>
+      <div class="legend">
+        <span><i class="swatch swatch-accent"></i>Projected balance</span>
+        <span><i class="swatch swatch-dashed"></i>FIRE number</span>
+      </div>
+    </div>
+
+    <p class="disclaimer">
+      Your FIRE number is annual expenses ÷ withdrawal rate — the portfolio size that could sustain
+      your spending indefinitely at that rate. 4% is a common starting point (the "safe withdrawal
+      rate" from the Trinity study), but treat it as a rule of thumb, not personal financial advice.
+      Estimates assume a constant annual return and ignore taxes, fees, and inflation.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    color: var(--color-text-muted);
+    margin-top: 1rem;
+  }
+
+  .currency-field {
+    max-width: 220px;
+    margin-top: 1.5rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .field label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .field input,
+  .field select {
+    font: inherit;
+    font-family: var(--font-sans);
+    padding: 0.55rem 0.7rem;
+    background: var(--color-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .field input:focus,
+  .field select:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.75rem 0 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tab {
+    font: inherit;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    padding: 0.6rem 0.1rem;
+    margin-right: 1.25rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+
+  .tab:hover {
+    color: var(--color-text);
+  }
+
+  .tab.active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1.75rem;
+  }
+
+  .stat {
+    padding: 0.9rem 1rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .stat-value {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+  }
+
+  .fire-date {
+    margin: 0.75rem 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .progress {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-border);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--color-accent);
+    border-radius: 999px;
+  }
+
+  .progress-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .chart-wrap {
+    margin-top: 1.75rem;
+  }
+
+  .chart-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .chart-wrap :global(text.chart-label) {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    fill: var(--color-text-muted);
+  }
+
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .swatch-accent {
+    background: var(--color-accent);
+  }
+
+  .swatch-muted {
+    background: var(--color-text-muted);
+  }
+
+  .swatch-dashed {
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-accent),
+      var(--color-accent) 3px,
+      transparent 3px,
+      transparent 6px
+    );
+  }
+
+  .disclaimer {
+    margin-top: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .panel[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  type Currency = 'USD' | 'EUR' | 'GBP' | 'SEK' | 'NOK' | 'DKK' | 'CHF';
+
+  const CURRENCIES: Record<Currency, { symbol: string; position: 'pre' | 'post' }> = {
+    USD: { symbol: '$', position: 'pre' },
+    EUR: { symbol: '€', position: 'pre' },
+    GBP: { symbol: '£', position: 'pre' },
+    SEK: { symbol: 'kr', position: 'post' },
+    NOK: { symbol: 'kr', position: 'post' },
+    DKK: { symbol: 'kr', position: 'post' },
+    CHF: { symbol: 'CHF', position: 'post' },
+  };
+
+  function currencyCode(): Currency {
+    const el = document.getElementById('currency') as HTMLSelectElement;
+    return (el?.value as Currency) || 'USD';
+  }
+
+  function formatCurrency(value: number, code: Currency): string {
+    const c = CURRENCIES[code];
+    const n = Math.round(value).toLocaleString('en-US');
+    return c.position === 'pre' ? `${c.symbol}${n}` : `${n} ${c.symbol}`;
+  }
+
+  function abbreviateNumber(value: number): string {
+    const sign = value < 0 ? '-' : '';
+    const abs = Math.abs(value);
+    if (abs >= 1_000_000) return `${sign}${(abs / 1_000_000).toFixed(abs % 1_000_000 === 0 ? 0 : 1)}M`;
+    if (abs >= 1_000) return `${sign}${Math.round(abs / 1_000)}k`;
+    return `${sign}${Math.round(abs)}`;
+  }
+
+  function formatAbbreviated(value: number, code: Currency): string {
+    const c = CURRENCIES[code];
+    const n = abbreviateNumber(value);
+    return c.position === 'pre' ? `${c.symbol}${n}` : `${n} ${c.symbol}`;
+  }
+
+  // Reads a numeric field without ever rewriting its value — that rewrite is
+  // what causes a controlled "0" default to trap the cursor and block deletion.
+  function readNumber(id: string): number {
+    const el = document.getElementById(id) as HTMLInputElement;
+    const raw = (el?.value ?? '').trim().replace(',', '.');
+    const value = parseFloat(raw);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function evenTicks(max: number, steps = 5): number[] {
+    const ticks: number[] = [];
+    for (let i = 0; i <= steps; i++) ticks.push(Math.round((max / steps) * i));
+    return Array.from(new Set(ticks));
+  }
+
+  interface Point {
+    x: number;
+    y: number;
+  }
+
+  interface Series {
+    points: Point[];
+    color: string;
+    fill?: boolean;
+    dash?: string;
+  }
+
+  interface ChartOptions {
+    series: Series[];
+    maxX: number;
+    maxY: number;
+    xTicks: number[];
+    goal?: number;
+    code: Currency;
+  }
+
+  function renderChart(svg: SVGSVGElement, opts: ChartOptions) {
+    const width = 600;
+    const height = 220;
+    const padLeft = 54;
+    const padRight = 12;
+    const padTop = 12;
+    const padBottom = 26;
+    const maxX = opts.maxX || 1;
+    const maxY = opts.maxY || 1;
+
+    const xScale = (x: number) => padLeft + (x / maxX) * (width - padLeft - padRight);
+    const yScale = (y: number) => height - padBottom - (y / maxY) * (height - padTop - padBottom);
+
+    let markup = '';
+
+    const yTicks = [0, maxY / 3, (maxY * 2) / 3, maxY];
+    for (const value of yTicks) {
+      const y = yScale(value);
+      markup += `<line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}" stroke="var(--color-border)" stroke-width="1" />`;
+      markup += `<text x="${padLeft - 8}" y="${(y + 3).toFixed(1)}" text-anchor="end" class="chart-label">${formatAbbreviated(value, opts.code)}</text>`;
+    }
+
+    for (const value of opts.xTicks) {
+      const x = xScale(value);
+      markup += `<text x="${x.toFixed(1)}" y="${height - padBottom + 16}" text-anchor="middle" class="chart-label">${value}y</text>`;
+    }
+
+    for (const series of opts.series) {
+      if (series.points.length === 0) continue;
+      const path = series.points
+        .map((p, i) => `${i === 0 ? 'M' : 'L'}${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`)
+        .join(' ');
+
+      if (series.fill) {
+        const baseline = yScale(0);
+        const last = series.points[series.points.length - 1];
+        const first = series.points[0];
+        const area = `${path} L${xScale(last.x).toFixed(1)},${baseline.toFixed(1)} L${xScale(first.x).toFixed(1)},${baseline.toFixed(1)} Z`;
+        markup += `<path d="${area}" fill="${series.color}" opacity="0.15" stroke="none" />`;
+      }
+
+      markup += `<path d="${path}" fill="none" stroke="${series.color}" stroke-width="2"${series.dash ? ` stroke-dasharray="${series.dash}"` : ''} />`;
+    }
+
+    if (opts.goal != null) {
+      const y = yScale(opts.goal);
+      markup += `<line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}" stroke="var(--color-accent)" stroke-width="1.5" stroke-dasharray="4,4" />`;
+    }
+
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.innerHTML = markup;
+  }
+
+  function renderSavings() {
+    const code = currencyCode();
+    const start = readNumber('sv-start');
+    const monthly = readNumber('sv-monthly');
+    const annualReturn = readNumber('sv-return');
+    const years = Math.max(1, Math.min(60, Math.round(readNumber('sv-years')) || 1));
+    const monthlyRate = annualReturn / 100 / 12;
+
+    let balance = start;
+    let contributed = start;
+    const balancePoints: Point[] = [{ x: 0, y: balance }];
+    const contributedPoints: Point[] = [{ x: 0, y: contributed }];
+
+    for (let month = 1; month <= years * 12; month++) {
+      balance = balance * (1 + monthlyRate) + monthly;
+      contributed += monthly;
+      balancePoints.push({ x: month / 12, y: balance });
+      contributedPoints.push({ x: month / 12, y: contributed });
+    }
+
+    document.getElementById('sv-total')!.textContent = formatCurrency(balance, code);
+    document.getElementById('sv-contributed')!.textContent = formatCurrency(contributed, code);
+    document.getElementById('sv-interest')!.textContent = formatCurrency(balance - contributed, code);
+
+    const maxY = Math.max(balance, contributed, 1) * 1.05;
+    const svg = document.getElementById('sv-chart') as unknown as SVGSVGElement;
+    renderChart(svg, {
+      series: [
+        { points: contributedPoints, color: 'var(--color-text-muted)', dash: '4,3' },
+        { points: balancePoints, color: 'var(--color-accent)', fill: true },
+      ],
+      maxX: years,
+      maxY,
+      xTicks: evenTicks(years),
+      code,
+    });
+  }
+
+  function renderFire() {
+    const code = currencyCode();
+    const monthlyExpenses = readNumber('fi-expenses');
+    const withdrawalRate = readNumber('fi-swr') || 4;
+    const current = readNumber('fi-current');
+    const monthly = readNumber('fi-monthly');
+    const annualReturn = readNumber('fi-return');
+    const monthlyRate = annualReturn / 100 / 12;
+
+    const fireNumber = (monthlyExpenses * 12) / (withdrawalRate / 100);
+    const capYears = 60;
+
+    let balance = current;
+    const allPoints: Point[] = [{ x: 0, y: balance }];
+    let reachedMonth: number | null = current >= fireNumber ? 0 : null;
+
+    for (let month = 1; month <= capYears * 12; month++) {
+      balance = balance * (1 + monthlyRate) + monthly;
+      if (reachedMonth === null && balance >= fireNumber) reachedMonth = month;
+      allPoints.push({ x: month / 12, y: balance });
+    }
+
+    document.getElementById('fi-number')!.textContent = formatCurrency(fireNumber, code);
+
+    const progressPct = fireNumber > 0 ? Math.min(100, (current / fireNumber) * 100) : 100;
+    (document.getElementById('fi-progress-bar') as HTMLElement).style.width = `${progressPct.toFixed(1)}%`;
+    document.getElementById('fi-progress-label')!.textContent = `${progressPct.toFixed(1)}% there`;
+
+    const yearsEl = document.getElementById('fi-years')!;
+    const dateEl = document.getElementById('fi-date')!;
+
+    if (reachedMonth === null) {
+      yearsEl.textContent = `More than ${capYears} years`;
+      dateEl.textContent = 'Increase your savings rate or expected return to reach independence sooner.';
+    } else if (reachedMonth === 0) {
+      yearsEl.textContent = 'Already there';
+      dateEl.textContent = 'Your current savings already cover your FIRE number.';
+    } else {
+      const yearsToFire = reachedMonth / 12;
+      yearsEl.textContent = `${yearsToFire.toFixed(1)} years`;
+      const target = new Date();
+      target.setMonth(target.getMonth() + reachedMonth);
+      dateEl.textContent = `Around ${target.getFullYear()}, at your current savings rate.`;
+    }
+
+    const displayYears = reachedMonth === null ? capYears : Math.max(1, Math.ceil(reachedMonth / 12));
+    const chartPoints = allPoints.filter((p) => p.x <= displayYears);
+    const maxY = Math.max(fireNumber, ...chartPoints.map((p) => p.y), 1) * 1.08;
+
+    const svg = document.getElementById('fi-chart') as unknown as SVGSVGElement;
+    renderChart(svg, {
+      series: [{ points: chartPoints, color: 'var(--color-accent)', fill: true }],
+      maxX: displayYears,
+      maxY,
+      xTicks: evenTicks(displayYears),
+      goal: fireNumber,
+      code,
+    });
+  }
+
+  function initTabs() {
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+
+        const target = tab.dataset.tab;
+        (document.getElementById('panel-savings') as HTMLElement).hidden = target !== 'savings';
+        (document.getElementById('panel-fire') as HTMLElement).hidden = target !== 'fire';
+      });
+    });
+  }
+
+  initTabs();
+
+  ['sv-start', 'sv-monthly', 'sv-return', 'sv-years'].forEach((id) =>
+    document.getElementById(id)!.addEventListener('input', renderSavings)
+  );
+
+  ['fi-expenses', 'fi-swr', 'fi-current', 'fi-monthly', 'fi-return'].forEach((id) =>
+    document.getElementById(id)!.addEventListener('input', renderFire)
+  );
+
+  document.getElementById('currency')!.addEventListener('change', () => {
+    renderSavings();
+    renderFire();
+  });
+
+  renderSavings();
+  renderFire();
+</script>

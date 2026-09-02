@@ -40,14 +40,10 @@ const projects = [
     description: 'A calculator for endurance races — dial in your race duration and target carbs-per-hour to get a fueling plan you can actually follow on race day. Built out of my own swimrun and marathon training.',
   },
   {
-    name: 'Savings calculator',
+    name: 'Savings & FIRE calculator',
     category: 'Finance',
-    description: 'A simple tool to visualize how regular saving and compound interest play out over time — plug in a starting amount, monthly contribution, and expected return to see the long-term curve.',
-  },
-  {
-    name: 'FIRE calculator',
-    category: 'Finance',
-    description: 'Estimate your path to financial independence — enter your savings rate, expenses, and expected returns to see roughly when your investments could cover your living costs.',
+    description: 'Visualize how regular saving and compound interest play out over time — plug in a starting amount, monthly contribution, and expected return to see the long-term curve. Switch to the FIRE tab to estimate how much you need for financial independence, and how long it will take, based on your expenses and savings rate. Choose your currency.',
+    href: '/projects/savings-calculator',
   },
 ];
 ---
@@ -66,7 +62,11 @@ const projects = [
         <h2>{project.name}</h2>
         <p>{project.description}</p>
         {project.href ? (
-          <a class="status status-live" href={project.href} target="_blank" rel="noopener noreferrer">Visit ↗</a>
+          project.href.startsWith('/') ? (
+            <a class="status status-live" href={project.href}>Try it →</a>
+          ) : (
+            <a class="status status-live" href={project.href} target="_blank" rel="noopener noreferrer">Visit ↗</a>
+          )
         ) : (
           <span class="status">Coming soon</span>
         )}
