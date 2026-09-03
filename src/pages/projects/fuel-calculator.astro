@@ -1,0 +1,391 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout
+  title="Endurance Fuel Calculator"
+  description="Plan race-day carbohydrate intake for endurance events and get a precise DIY mix of white sugar, maltodextrin, and salt to hit it."
+>
+  <h1>Endurance Fuel Calculator</h1>
+  <p class="intro">
+    Dial in your race duration, intensity, and gut training level to get a carbs-per-hour target —
+    then see exactly how much white sugar, maltodextrin, and salt to mix to hit it.
+  </p>
+
+  <section class="block">
+    <h2>Race</h2>
+    <div class="field-grid">
+      <div class="field">
+        <label for="dur-hours">Duration — hours</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="dur-hours" value="4" />
+      </div>
+      <div class="field">
+        <label for="dur-minutes">Duration — minutes</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="dur-minutes" value="0" />
+      </div>
+      <div class="field">
+        <label for="weight">Body weight</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="weight" value="70" />
+      </div>
+      <div class="field">
+        <label for="weight-unit">Weight unit</label>
+        <select id="weight-unit">
+          <option value="kg">kg</option>
+          <option value="lb">lb</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="intensity">Intensity / HR zone</label>
+        <select id="intensity">
+          <option value="easy">Zone 1–2 / Easy (&lt;70% HR max)</option>
+          <option value="moderate" selected>Zone 3 / Moderate (70–80% HR max)</option>
+          <option value="high">Zone 4–5 / High (&gt;80% HR max)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="gut-level">Gut training level</label>
+        <select id="gut-level">
+          <option value="low">Low / Beginner (30–60 g/hr)</option>
+          <option value="moderate" selected>Moderately GI trained (60–90 g/hr)</option>
+          <option value="high">Highly GI trained (90–120+ g/hr)</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Strategy</h2>
+    <div class="field-grid">
+      <div class="field">
+        <label for="ratio">Glucose:Fructose ratio</label>
+        <select id="ratio">
+          <option value="0.8" selected>1:0.8 — Modern high-carb</option>
+          <option value="1">1:1 — Simple sugar</option>
+          <option value="0.5">2:1 (1:0.5) — Classic</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="sodium-level">Sodium strength</label>
+        <select id="sodium-level">
+          <option value="low">Low (~0.5 g salt/hr)</option>
+          <option value="moderate" selected>Moderate (~0.75 g salt/hr)</option>
+          <option value="high">High (~1 g salt/hr)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="carb-override">Custom carb target (g/hr)</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="carb-override" placeholder="Auto" />
+      </div>
+      <div class="field">
+        <label for="gel-weight">Gel equivalent (g carbs/gel)</label>
+        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gel-weight" value="30" />
+      </div>
+    </div>
+  </section>
+
+  <section class="block results-block">
+    <h2>Strategy summary</h2>
+    <p class="rate-line">
+      Suggested rate: <strong id="res-baseline"></strong>
+      <span id="res-override-note" class="override-note"></span>
+    </p>
+
+    <div class="results">
+      <div class="stat">
+        <span class="stat-label">Total carbs</span>
+        <span class="stat-value" id="res-total-carbs"></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Total calories</span>
+        <span class="stat-value" id="res-total-kcal"></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Commercial gels</span>
+        <span class="stat-value" id="res-gel-count"></span>
+      </div>
+    </div>
+
+    <h3>Recipe mix — whole race</h3>
+    <ul class="mix-list">
+      <li><strong id="res-sugar-total"></strong> white sugar</li>
+      <li><strong id="res-malto-total"></strong> maltodextrin</li>
+      <li><strong id="res-salt-total"></strong> table/sea salt <span class="muted" id="res-sodium-total"></span></li>
+    </ul>
+
+    <h3>Hourly mix guide</h3>
+    <ul class="mix-list">
+      <li><strong id="res-sugar-hour"></strong> white sugar</li>
+      <li><strong id="res-malto-hour"></strong> maltodextrin</li>
+      <li><strong id="res-salt-hour"></strong> salt <span class="muted" id="res-sodium-hour"></span></li>
+      <li class="carb-hour"><strong id="res-carbs-hour"></strong> carbs</li>
+    </ul>
+
+    <p class="disclaimer">
+      Estimates only, built for planning — not medical or sports-nutrition advice. Practice your
+      fueling strategy in training before race day, and adjust to your own gut tolerance.
+    </p>
+  </section>
+
+  <script>
+    type Intensity = 'easy' | 'moderate' | 'high';
+    type GutLevel = 'low' | 'moderate' | 'high';
+    type SodiumLevel = 'low' | 'moderate' | 'high';
+
+    const GUT_RANGES: Record<GutLevel, [number, number]> = {
+      low: [30, 60],
+      moderate: [60, 90],
+      high: [90, 120],
+    };
+
+    const INTENSITY_FACTOR: Record<Intensity, number> = {
+      easy: 0.2,
+      moderate: 0.55,
+      high: 0.9,
+    };
+
+    const RATIO_MIX: Record<string, { maltodextrin: number; sugar: number }> = {
+      '0.8': { maltodextrin: 0.555, sugar: 0.445 },
+      '1': { maltodextrin: 0, sugar: 1 },
+      '0.5': { maltodextrin: 0.667, sugar: 0.333 },
+    };
+
+    const SALT_PER_HOUR: Record<SodiumLevel, number> = {
+      low: 0.5,
+      moderate: 0.75,
+      high: 1,
+    };
+
+    const SODIUM_FRACTION_OF_SALT = 0.393;
+
+    function readNumber(id: string): number {
+      const el = document.getElementById(id) as HTMLInputElement;
+      const raw = (el?.value ?? '').trim().replace(',', '.');
+      const value = parseFloat(raw);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function selectValue(id: string): string {
+      return (document.getElementById(id) as HTMLSelectElement)?.value ?? '';
+    }
+
+    function formatGrams(value: number): string {
+      return `${value.toFixed(1)} g`;
+    }
+
+    // Gut training sets the g/hr range; intensity picks where in that range to
+    // land. Short efforts taper toward zero (little benefit fueling a 20-minute
+    // race); very long ones nudge toward the top of the range for glycogen depletion.
+    function baselineRate(gutLevel: GutLevel, intensity: Intensity, totalHours: number): number {
+      const [lo, hi] = GUT_RANGES[gutLevel];
+      let rate = lo + (hi - lo) * INTENSITY_FACTOR[intensity];
+      if (totalHours < 1) {
+        rate *= Math.max(0.4, totalHours);
+      } else if (totalHours > 3) {
+        rate = Math.min(hi, rate * 1.05);
+      }
+      return Math.round(rate / 5) * 5;
+    }
+
+    function render() {
+      const hours = Math.max(0, readNumber('dur-hours'));
+      const minutes = Math.max(0, readNumber('dur-minutes'));
+      const totalHours = Math.max(1 / 60, hours + minutes / 60);
+
+      const weight = readNumber('weight');
+      const weightUnit = selectValue('weight-unit');
+      const weightKg = weightUnit === 'lb' ? weight * 0.453592 : weight;
+
+      const intensity = selectValue('intensity') as Intensity;
+      const gutLevel = selectValue('gut-level') as GutLevel;
+      const ratioKey = selectValue('ratio');
+      const sodiumLevel = selectValue('sodium-level') as SodiumLevel;
+
+      const baseline = baselineRate(gutLevel, intensity, totalHours);
+      const perKgLabel = weightKg > 0 ? ` (≈${(baseline / weightKg).toFixed(2)} g/kg/hr)` : '';
+      document.getElementById('res-baseline')!.textContent = `${baseline} g/hr${perKgLabel}`;
+
+      const overrideRaw = readNumber('carb-override');
+      const usingOverride = overrideRaw > 0;
+      const hourlyRate = usingOverride ? overrideRaw : baseline;
+
+      const overrideNote = document.getElementById('res-override-note')!;
+      overrideNote.textContent = usingOverride ? `— using custom target of ${hourlyRate} g/hr` : '';
+
+      const totalCarbs = hourlyRate * totalHours;
+      const totalKcal = totalCarbs * 4;
+      const gelWeight = readNumber('gel-weight') || 30;
+      const gelCount = totalCarbs / gelWeight;
+
+      document.getElementById('res-total-carbs')!.textContent = `${Math.round(totalCarbs)} g`;
+      document.getElementById('res-total-kcal')!.textContent = `${Math.round(totalKcal)} kcal`;
+      document.getElementById('res-gel-count')!.textContent = `${gelCount.toFixed(1)} gels`;
+
+      const mix = RATIO_MIX[ratioKey];
+      const sugarTotal = totalCarbs * mix.sugar;
+      const maltoTotal = totalCarbs * mix.maltodextrin;
+      const sugarHour = hourlyRate * mix.sugar;
+      const maltoHour = hourlyRate * mix.maltodextrin;
+
+      document.getElementById('res-sugar-total')!.textContent = formatGrams(sugarTotal);
+      document.getElementById('res-malto-total')!.textContent = formatGrams(maltoTotal);
+      document.getElementById('res-sugar-hour')!.textContent = formatGrams(sugarHour);
+      document.getElementById('res-malto-hour')!.textContent = formatGrams(maltoHour);
+      document.getElementById('res-carbs-hour')!.textContent = `${hourlyRate.toFixed(1)} g/hr`;
+
+      const saltPerHour = SALT_PER_HOUR[sodiumLevel];
+      const saltTotal = saltPerHour * totalHours;
+      const sodiumTotalMg = saltTotal * SODIUM_FRACTION_OF_SALT * 1000;
+      const sodiumPerHourMg = saltPerHour * SODIUM_FRACTION_OF_SALT * 1000;
+
+      document.getElementById('res-salt-total')!.textContent = formatGrams(saltTotal);
+      document.getElementById('res-sodium-total')!.textContent = `(≈${Math.round(sodiumTotalMg)} mg sodium)`;
+      document.getElementById('res-salt-hour')!.textContent = formatGrams(saltPerHour);
+      document.getElementById('res-sodium-hour')!.textContent = `(≈${Math.round(sodiumPerHourMg)} mg sodium)`;
+    }
+
+    [
+      'dur-hours',
+      'dur-minutes',
+      'weight',
+      'carb-override',
+      'gel-weight',
+    ].forEach((id) => document.getElementById(id)!.addEventListener('input', render));
+
+    ['weight-unit', 'intensity', 'gut-level', 'ratio', 'sodium-level'].forEach((id) =>
+      document.getElementById(id)!.addEventListener('change', render)
+    );
+
+    render();
+  </script>
+
+  <style>
+    .intro {
+      color: var(--color-text-muted);
+      margin-top: 1rem;
+    }
+
+    .block {
+      margin-top: 2rem;
+    }
+
+    .block h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .results-block h3 {
+      font-size: 0.95rem;
+      margin: 1.5rem 0 0.6rem;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .field input,
+    .field select {
+      font: inherit;
+      font-family: var(--font-sans);
+      padding: 0.55rem 0.7rem;
+      background: var(--color-card);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 1px;
+    }
+
+    .rate-line {
+      color: var(--color-text-muted);
+      margin: 0 0 1rem;
+    }
+
+    .rate-line strong {
+      color: var(--color-text);
+    }
+
+    .override-note {
+      display: block;
+      font-size: 0.85rem;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat {
+      padding: 0.9rem 1rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .stat-value {
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+    }
+
+    .mix-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mix-list li {
+      padding: 0.7rem 0.9rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+
+    .mix-list strong {
+      font-family: var(--font-serif);
+    }
+
+    .mix-list .muted {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+    }
+
+    .mix-list .carb-hour {
+      border-style: dashed;
+      color: var(--color-text-muted);
+    }
+
+    .disclaimer {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+  </style>
+</Layout>
