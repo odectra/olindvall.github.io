@@ -72,10 +72,6 @@ import Layout from '../../layouts/Layout.astro';
         </select>
       </div>
       <div class="field">
-        <label for="carb-override">Custom carb target (g/hr)</label>
-        <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="carb-override" placeholder="Auto" />
-      </div>
-      <div class="field">
         <label for="gel-weight">Gel equivalent (g carbs/gel)</label>
         <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="gel-weight" value="30" />
       </div>
@@ -84,10 +80,21 @@ import Layout from '../../layouts/Layout.astro';
 
   <section class="block results-block">
     <h2>Strategy summary</h2>
-    <p class="rate-line">
-      Suggested rate: <strong id="res-baseline"></strong>
-      <span id="res-override-note" class="override-note"></span>
-    </p>
+
+    <div class="rate-control">
+      <div class="rate-control-header">
+        <label for="carb-rate">Carb target</label>
+        <div class="rate-number-group">
+          <input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="carb-rate-number" />
+          <span>g/hr</span>
+        </div>
+      </div>
+      <input type="range" id="carb-rate" min="0" max="150" step="1" />
+      <p class="rate-line">
+        Suggested for your inputs: <strong id="res-baseline"></strong>
+        <button type="button" id="rate-reset" class="rate-reset">Use suggested</button>
+      </p>
+    </div>
 
     <div class="results">
       <div class="stat">
@@ -185,6 +192,16 @@ import Layout from '../../layouts/Layout.astro';
       return Math.round(rate / 5) * 5;
     }
 
+    // Once the user drags the slider or types a rate directly, their value sticks
+    // even as duration/intensity/gut-level change — "Use suggested" snaps it back.
+    let rateManuallySet = false;
+
+    function setRate(value: number) {
+      const clamped = Math.max(0, Math.min(150, Math.round(value)));
+      (document.getElementById('carb-rate') as HTMLInputElement).value = String(clamped);
+      (document.getElementById('carb-rate-number') as HTMLInputElement).value = String(clamped);
+    }
+
     function render() {
       const hours = Math.max(0, readNumber('dur-hours'));
       const minutes = Math.max(0, readNumber('dur-minutes'));
@@ -203,12 +220,8 @@ import Layout from '../../layouts/Layout.astro';
       const perKgLabel = weightKg > 0 ? ` (≈${(baseline / weightKg).toFixed(2)} g/kg/hr)` : '';
       document.getElementById('res-baseline')!.textContent = `${baseline} g/hr${perKgLabel}`;
 
-      const overrideRaw = readNumber('carb-override');
-      const usingOverride = overrideRaw > 0;
-      const hourlyRate = usingOverride ? overrideRaw : baseline;
-
-      const overrideNote = document.getElementById('res-override-note')!;
-      overrideNote.textContent = usingOverride ? `— using custom target of ${hourlyRate} g/hr` : '';
+      if (!rateManuallySet) setRate(baseline);
+      const hourlyRate = readNumber('carb-rate-number');
 
       const totalCarbs = hourlyRate * totalHours;
       const totalKcal = totalCarbs * 4;
@@ -242,17 +255,33 @@ import Layout from '../../layouts/Layout.astro';
       document.getElementById('res-sodium-hour')!.textContent = `(≈${Math.round(sodiumPerHourMg)} mg sodium)`;
     }
 
-    [
-      'dur-hours',
-      'dur-minutes',
-      'weight',
-      'carb-override',
-      'gel-weight',
-    ].forEach((id) => document.getElementById(id)!.addEventListener('input', render));
+    ['dur-hours', 'dur-minutes', 'weight', 'gel-weight'].forEach((id) =>
+      document.getElementById(id)!.addEventListener('input', render)
+    );
 
     ['weight-unit', 'intensity', 'gut-level', 'ratio', 'sodium-level'].forEach((id) =>
       document.getElementById(id)!.addEventListener('change', render)
     );
+
+    const rateSlider = document.getElementById('carb-rate') as HTMLInputElement;
+    const rateNumber = document.getElementById('carb-rate-number') as HTMLInputElement;
+
+    rateSlider.addEventListener('input', () => {
+      rateManuallySet = true;
+      rateNumber.value = rateSlider.value;
+      render();
+    });
+
+    rateNumber.addEventListener('input', () => {
+      rateManuallySet = true;
+      rateSlider.value = rateNumber.value;
+      render();
+    });
+
+    document.getElementById('rate-reset')!.addEventListener('click', () => {
+      rateManuallySet = false;
+      render();
+    });
 
     render();
   </script>
@@ -311,18 +340,85 @@ import Layout from '../../layouts/Layout.astro';
       outline-offset: 1px;
     }
 
+    .rate-control {
+      padding: 1rem 1.1rem 1.1rem;
+      margin-bottom: 1.5rem;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-card);
+    }
+
+    .rate-control-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .rate-control-header label {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .rate-number-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+    }
+
+    .rate-number-group input {
+      width: 3.5rem;
+      font: inherit;
+      font-family: var(--font-serif);
+      text-align: right;
+      background: none;
+      color: var(--color-text);
+      border: none;
+      border-bottom: 1px solid var(--color-border);
+      padding: 0 0 0.1rem;
+    }
+
+    .rate-number-group input:focus {
+      outline: none;
+      border-bottom-color: var(--color-accent);
+    }
+
+    .rate-number-group span {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    input[type='range'] {
+      width: 100%;
+      margin: 0.75rem 0 0.5rem;
+      accent-color: var(--color-accent);
+    }
+
     .rate-line {
       color: var(--color-text-muted);
-      margin: 0 0 1rem;
+      margin: 0;
+      font-size: 0.85rem;
     }
 
     .rate-line strong {
       color: var(--color-text);
     }
 
-    .override-note {
-      display: block;
-      font-size: 0.85rem;
+    .rate-reset {
+      font: inherit;
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+      padding: 0;
+      background: none;
+      border: none;
+      color: var(--color-accent);
+      cursor: pointer;
+      text-decoration: underline;
     }
 
     .results {
