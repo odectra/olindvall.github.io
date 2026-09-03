@@ -3,24 +3,20 @@ import Layout from '../../layouts/Layout.astro';
 import { trainingSessions, weeklyHours } from '../../data/trainingProgram';
 
 const weeks = [1, 2, 3, 4, 5];
-const forms = [
-  { value: 'Löpning', label: 'Running' },
-  { value: 'Stakmaskin', label: 'Ski erg' },
-  { value: 'Simning', label: 'Swimming' },
-  { value: 'Styrka', label: 'Strength' },
-] as const;
+const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
 ---
 <Layout
-  title="Grundträningsprogram"
+  title="Base Training Program"
   description="A rolling 5-week base training program for swimrun and running — running, ski erg, swimming and strength, with a filterable list/calendar view and a weekly volume chart."
 >
   <div class="training-page">
-    <h1 lang="sv">Grundträningsprogram</h1>
+    <h1>Base Training Program</h1>
     <p class="intro">
-      A rolling 5-week block that lays the base for swimrun, running and Vasaloppet form. No
-      taper — this is the base itself, built to hold up under 6-8 weeks of race-specific taper
-      layered on top for individual events (swimrun, 10K, half marathon, etc.). Running through
-      Majornas IK, ski erg and strength at home, swimming with TriVäst.
+      A rolling 5-week block that lays the base workout program for swimrun, running and general
+      endurance and robustness during winter season. No taper included, since this is the base
+      itself, designed to prepare me for race-specific taper periods starting typically 6-12
+      weeks before individual events (swimrun, 10K, half marathon, etc.). Running with Majornas
+      IK, ski erg and strength at home, swimming with TriVäst.
     </p>
 
     <div class="rule-box">
@@ -56,8 +52,8 @@ const forms = [
       <div class="filter-group">
         <span class="filter-label">Form</span>
         {forms.map((f) => (
-          <button type="button" class="chip form-chip active" data-filter="form" data-value={f.value}>
-            {f.label}
+          <button type="button" class="chip form-chip active" data-filter="form" data-value={f}>
+            {f}
           </button>
         ))}
       </div>
@@ -120,11 +116,6 @@ const forms = [
       --color-form-ski: oklch(75% 0.14 90);
       --color-form-strength: oklch(70% 0.02 55);
     }
-  }
-
-  .training-page h1 {
-    overflow-wrap: break-word;
-    hyphens: auto;
   }
 
   .intro {
@@ -234,10 +225,10 @@ const forms = [
     text-decoration: line-through;
   }
 
-  .form-chip[data-value='Löpning'].active { background: var(--color-form-run); border-color: var(--color-form-run); }
-  .form-chip[data-value='Simning'].active { background: var(--color-form-swim); border-color: var(--color-form-swim); }
-  .form-chip[data-value='Stakmaskin'].active { background: var(--color-form-ski); border-color: var(--color-form-ski); }
-  .form-chip[data-value='Styrka'].active { background: var(--color-form-strength); border-color: var(--color-form-strength); }
+  .form-chip[data-value='Running'].active { background: var(--color-form-run); border-color: var(--color-form-run); }
+  .form-chip[data-value='Swimming'].active { background: var(--color-form-swim); border-color: var(--color-form-swim); }
+  .form-chip[data-value='Ski erg'].active { background: var(--color-form-ski); border-color: var(--color-form-ski); }
+  .form-chip[data-value='Strength'].active { background: var(--color-form-strength); border-color: var(--color-form-strength); }
   .form-chip.active { color: var(--color-bg); }
   .form-chip.active.off { background: transparent; color: var(--color-text-muted); }
 
@@ -404,14 +395,14 @@ const forms = [
     font-size: 0.7rem;
   }
 
-  :global(.session[data-form='Löpning'] .s-form-name),
-  :global(.session[data-form='Löpning'] .s-purpose) { color: var(--color-form-run); }
-  :global(.session[data-form='Simning'] .s-form-name),
-  :global(.session[data-form='Simning'] .s-purpose) { color: var(--color-form-swim); }
-  :global(.session[data-form='Stakmaskin'] .s-form-name),
-  :global(.session[data-form='Stakmaskin'] .s-purpose) { color: var(--color-form-ski); }
-  :global(.session[data-form='Styrka'] .s-form-name),
-  :global(.session[data-form='Styrka'] .s-purpose) { color: var(--color-form-strength); }
+  :global(.session[data-form='Running'] .s-form-name),
+  :global(.session[data-form='Running'] .s-purpose) { color: var(--color-form-run); }
+  :global(.session[data-form='Swimming'] .s-form-name),
+  :global(.session[data-form='Swimming'] .s-purpose) { color: var(--color-form-swim); }
+  :global(.session[data-form='Ski erg'] .s-form-name),
+  :global(.session[data-form='Ski erg'] .s-purpose) { color: var(--color-form-ski); }
+  :global(.session[data-form='Strength'] .s-form-name),
+  :global(.session[data-form='Strength'] .s-purpose) { color: var(--color-form-strength); }
 
   :global(.s-plan) {
     font-size: 0.85rem;
@@ -504,10 +495,10 @@ const forms = [
     border-left-style: dashed;
   }
 
-  :global(.cal-pill[data-form='Löpning']) { border-left-color: var(--color-form-run); }
-  :global(.cal-pill[data-form='Simning']) { border-left-color: var(--color-form-swim); }
-  :global(.cal-pill[data-form='Stakmaskin']) { border-left-color: var(--color-form-ski); }
-  :global(.cal-pill[data-form='Styrka']) { border-left-color: var(--color-form-strength); }
+  :global(.cal-pill[data-form='Running']) { border-left-color: var(--color-form-run); }
+  :global(.cal-pill[data-form='Swimming']) { border-left-color: var(--color-form-swim); }
+  :global(.cal-pill[data-form='Ski erg']) { border-left-color: var(--color-form-ski); }
+  :global(.cal-pill[data-form='Strength']) { border-left-color: var(--color-form-strength); }
 
   :global(.cal-pill .p-form) {
     font-weight: 600;
@@ -515,10 +506,10 @@ const forms = [
     display: block;
   }
 
-  :global(.cal-pill[data-form='Löpning'] .p-form) { color: var(--color-form-run); }
-  :global(.cal-pill[data-form='Simning'] .p-form) { color: var(--color-form-swim); }
-  :global(.cal-pill[data-form='Stakmaskin'] .p-form) { color: var(--color-form-ski); }
-  :global(.cal-pill[data-form='Styrka'] .p-form) { color: var(--color-form-strength); }
+  :global(.cal-pill[data-form='Running'] .p-form) { color: var(--color-form-run); }
+  :global(.cal-pill[data-form='Swimming'] .p-form) { color: var(--color-form-swim); }
+  :global(.cal-pill[data-form='Ski erg'] .p-form) { color: var(--color-form-ski); }
+  :global(.cal-pill[data-form='Strength'] .p-form) { color: var(--color-form-strength); }
 
   :global(.cal-pill .p-vol) {
     font-size: 0.63rem;
@@ -542,7 +533,7 @@ const forms = [
   interface TrainingSession {
     week: number;
     day: string;
-    form: 'Löpning' | 'Simning' | 'Stakmaskin' | 'Styrka';
+    form: 'Running' | 'Swimming' | 'Ski erg' | 'Strength';
     purpose: string;
     plan: string;
     volume: string;
@@ -554,7 +545,7 @@ const forms = [
   const sessions: TrainingSession[] = JSON.parse(document.getElementById('training-data')!.textContent!);
   const weeklyHours: WeeklyHours = JSON.parse(document.getElementById('weekly-hours-data')!.textContent!);
 
-  const allForms: TrainingSession['form'][] = ['Löpning', 'Stakmaskin', 'Simning', 'Styrka'];
+  const allForms: TrainingSession['form'][] = ['Running', 'Ski erg', 'Swimming', 'Strength'];
 
   const state = {
     forms: new Set<TrainingSession['form']>(allForms),
@@ -563,7 +554,7 @@ const forms = [
     view: 'list' as 'list' | 'calendar',
   };
 
-  const dayNames = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const dayOrder = Object.fromEntries(dayNames.map((d, i) => [d, i]));
 
   document.getElementById('weekSelect')!.addEventListener('change', (e) => {
@@ -700,10 +691,10 @@ const forms = [
   function renderChart() {
     const container = document.getElementById('chartContainer')!;
     const colorVar: Record<TrainingSession['form'], string> = {
-      Löpning: 'var(--color-form-run)',
-      Simning: 'var(--color-form-swim)',
-      Stakmaskin: 'var(--color-form-ski)',
-      Styrka: 'var(--color-form-strength)',
+      Running: 'var(--color-form-run)',
+      Swimming: 'var(--color-form-swim)',
+      'Ski erg': 'var(--color-form-ski)',
+      Strength: 'var(--color-form-strength)',
     };
 
     const weeks = Object.keys(weeklyHours).sort((a, b) => Number(a) - Number(b));
