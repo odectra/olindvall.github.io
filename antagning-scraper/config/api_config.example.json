@@ -1,0 +1,48 @@
+{
+  "_readme": "PLACEHOLDER VALUES. Run tools/discover_api.py against your own filtered antagning.se search URL first, then edit these fields to match what you actually observed -- see docs/API_DISCOVERY.md. Once filled in, copy this file to api_config.json (that's what src/scrape.py reads by default).",
+
+  "base_url": "https://www.antagning.se",
+  "search_api_path": "/api/PLACEHOLDER-fill-in-from-discovery",
+  "method": "GET",
+
+  "static_query_params": {
+    "term": "2027:1",
+    "educationType": "KURS",
+    "distance": "true",
+    "onCampusMeetings": "false"
+  },
+
+  "pagination": {
+    "_readme": "style is one of: offset_limit | page_number | cursor. Only the params relevant to the chosen style are used.",
+    "style": "offset_limit",
+    "page_size": 50,
+    "offset_param": "from",
+    "limit_param": "size",
+    "page_param": "page",
+    "first_page_index": 0,
+    "cursor_param": "cursor",
+    "next_cursor_key": "nextCursor"
+  },
+
+  "response": {
+    "_readme": "Dotted paths into each page's JSON body.",
+    "results_key": "hits",
+    "total_key": "total"
+  },
+
+  "field_map": {
+    "_readme": "normalized_column -> dotted path into each hit object. Adjust to match docs/api_example.json.",
+    "kurskod": "courseCode",
+    "kursnamn": "title",
+    "larosate": "provider.name",
+    "ort": "location.name",
+    "hp": "credits",
+    "niva": "level",
+    "sprak": "language",
+    "startdatum": "startDate",
+    "slutdatum": "endDate",
+    "anmalningskod": "applicationCode",
+    "antal_platser": "seats",
+    "url": "detailsUrl"
+  }
+}

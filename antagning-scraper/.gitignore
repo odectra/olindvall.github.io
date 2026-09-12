@@ -1,0 +1,18 @@
+# raw cached API pages (large, regenerable via src/scrape.py)
+data/raw/*.json
+!data/raw/.gitkeep
+
+# processed output tables (regenerable from data/raw)
+data/processed/*.csv
+data/processed/*.parquet
+!data/processed/.gitkeep
+
+# generated charts
+output/*.png
+!output/.gitkeep
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/

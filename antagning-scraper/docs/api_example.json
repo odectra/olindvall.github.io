@@ -1,0 +1,22 @@
+{
+  "_note": "PLACEHOLDER. This agent session had no network route to antagning.se (sandboxed egress policy), so the real API response could never be captured here. Run tools/discover_api.py locally (see docs/API_DISCOVERY.md) -- it overwrites this file automatically with a real example the first time it finds a matching response.",
+  "_shape_used_for_testing": {
+    "total": 137,
+    "hits": [
+      {
+        "courseCode": "XX0000",
+        "title": "Exempelkurs 0",
+        "provider": { "name": "Exempeluniversitetet" },
+        "location": { "name": "Distans" },
+        "credits": 7.5,
+        "level": "grundniva",
+        "language": "Svenska",
+        "startDate": "2027-01-18",
+        "endDate": "2027-06-07",
+        "applicationCode": "AC0000",
+        "seats": 30,
+        "detailsUrl": "https://www.antagning.se/kurs/0"
+      }
+    ]
+  }
+}
