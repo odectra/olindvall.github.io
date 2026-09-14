@@ -23,8 +23,10 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
       <p>
         <strong>Volume rule:</strong> running should land at 40-55 km/week with 1-2 quality
         sessions. The fixed sessions (Mon, Wed, Thu, Sat) normally give 40-48 km — add the
-        optional easy sessions on Friday and/or Sunday if the week needs more volume. Ski erg
-        and swimming: 1-2 sessions/week each. Strength: 3 fixed sessions/week (Tue, Fri, Sun),
+        optional easy sessions on Friday and/or Sunday if the week needs more volume. Ski erg:
+        1-2 sessions/week. Swimming: 2 fixed sessions/week (Wed endurance, Sun TriVäst) plus an
+        optional Tuesday speed session — add it for extra speed work when the week allows.
+        Strength: 3 fixed sessions/week (Tue, Fri, Sun),
         25-35 min each. Every session ends with single-leg heavy-slow calf raises (3x10-15/leg)
         for Achilles tendinopathy rehab; the rest of each session rotates — push/shoulder/core
         (Tue), single-leg/lower-body (Fri), pull/hips/rotational-core (Sun) — so the whole body
@@ -43,7 +45,11 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
       </div>
       <div class="stat">
         <span class="stat-value">1-2</span>
-        <span class="stat-label">ski erg &amp; swim sessions</span>
+        <span class="stat-label">ski erg sessions</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">2-3</span>
+        <span class="stat-label">swim sessions</span>
       </div>
       <div class="stat">
         <span class="stat-value">3</span>
@@ -81,8 +87,8 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
       <h2>Weekly training volume</h2>
       <p class="chart-caption">
         Shown in training hours per discipline. Running is converted from kilometers at a 5:00
-        min/km pace. Optional filler sessions (Fri/Sun) aren't included, since they vary with
-        need.
+        min/km pace. Optional filler sessions (Fri/Sun runs, Tue swim) aren't included, since
+        they vary with need.
       </p>
       <div class="chart-legend">
         <span class="legend-item"><span class="legend-swatch swatch-run"></span>Running</span>
