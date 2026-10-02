@@ -1,22 +1,23 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { trainingSessions, weeklyHours } from '../../data/trainingProgram';
+import { trainingSlots } from '../../data/trainingProgram';
 
-const weeks = [1, 2, 3, 4, 5];
 const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
 ---
 <Layout
   title="Base Training Program"
-  description="A rolling 5-week base training program for swimrun and running — running, ski erg, swimming and strength, with a filterable list/calendar view and a weekly volume chart."
+  description="A repeating base training week for swimrun and running — running, ski erg, swimming and strength, with a selectable workout for each session, a list/calendar view and a weekly volume chart."
 >
   <div class="training-page">
     <h1>Base Training Program</h1>
     <p class="intro">
-      A rolling 5-week block that lays the base workout program for swimrun, running and general
-      endurance and robustness during winter season. No taper included, since this is the base
-      itself, designed to prepare me for race-specific taper periods starting typically 6-12
-      weeks before individual events (swimrun, 10K, half marathon, etc.). Running with Majornas
-      IK, ski erg and strength at home, swimming with TriVäst.
+      One repeating week that lays the base workout program for swimrun, running and general
+      endurance and robustness during winter season. The structure stays the same every week;
+      pick the workout for each session from the options that fit its purpose to keep the
+      training varied. No taper included, since this is the base itself, designed to prepare me
+      for race-specific taper periods starting typically 6-12 weeks before individual events
+      (swimrun, 10K, half marathon, etc.). Running with Majornas IK, ski erg and strength at
+      home, swimming with TriVäst.
     </p>
 
     <div class="rule-box">
@@ -26,18 +27,16 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
         optional easy sessions on Friday and/or Sunday if the week needs more volume. Ski erg:
         1-2 sessions/week. Swimming: 2 fixed sessions/week (Wed endurance, Sun TriVäst) plus an
         optional Tuesday speed session — add it for extra speed work when the week allows.
-        Strength: 3 fixed sessions/week (Tue, Fri, Sun),
-        25-35 min each. Every session ends with single-leg heavy-slow calf raises (3x10-15/leg)
-        for Achilles tendinopathy rehab; the rest of each session rotates — push/shoulder/core
-        (Tue), single-leg/lower-body (Fri), pull/hips/rotational-core (Sun) — so the whole body
-        gets trained each week for swimrun.
+        Strength: 3 fixed sessions/week (Tue, Fri, Sun), each one of A (running rehab/prehab),
+        B ("Incredible Hulk") or C (muscle-up preparation), ~30 min each. Do A at least once a
+        week for Achilles and calf robustness.
       </p>
     </div>
 
     <div class="meta-row">
       <div class="stat">
-        <span class="stat-value">5</span>
-        <span class="stat-label">weeks, rolling</span>
+        <span class="stat-value">1</span>
+        <span class="stat-label">week, repeating</span>
       </div>
       <div class="stat">
         <span class="stat-value">40-55 km</span>
@@ -67,12 +66,9 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
         ))}
       </div>
       <div class="filter-group">
-        <span class="filter-label">Week</span>
-        <select id="weekSelect" class="week-select">
-          <option value="all">All weeks</option>
-          {weeks.map((w) => <option value={w}>Week {w}</option>)}
-        </select>
+        <span class="filter-label">Search</span>
         <input class="search-input" id="searchInput" type="text" placeholder="Search sessions…" />
+        <button type="button" class="chip" id="resetSelections">Reset workouts</button>
       </div>
       <div class="filter-group">
         <span class="filter-label">View</span>
@@ -86,29 +82,23 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
     <div class="chart-section">
       <h2>Weekly training volume</h2>
       <p class="chart-caption">
-        Shown in training hours per discipline. Running is converted from kilometers at a 5:00
-        min/km pace. Optional filler sessions (Fri/Sun runs, Tue swim) aren't included, since
-        they vary with need.
+        Training hours per discipline for the workouts currently selected above. Running is
+        converted from kilometers at a 5:00 min/km pace. Optional filler sessions (Fri/Sun runs,
+        Tue swim) aren't included, since they vary with need.
       </p>
-      <div class="chart-legend">
-        <span class="legend-item"><span class="legend-swatch swatch-run"></span>Running</span>
-        <span class="legend-item"><span class="legend-swatch swatch-swim"></span>Swimming</span>
-        <span class="legend-item"><span class="legend-swatch swatch-ski"></span>Ski erg</span>
-        <span class="legend-item"><span class="legend-swatch swatch-strength"></span>Strength</span>
-      </div>
       <div id="chartContainer"></div>
       <p class="chart-note" id="chartNote"></p>
     </div>
 
     <p class="footnote">
-      The program repeats every 5 weeks — run weeks 1-5, then start over at 1. Thursday's MIK
-      session is chosen on a rolling basis from the club's current schedule. Optional easy runs
-      (Fri/Sun) are added as needed to reach the week's volume target.
+      The same week repeats; vary the workout for each session using its dropdown. Your
+      selections are remembered in this browser. Thursday's MIK session is chosen on a rolling
+      basis from the club's current schedule. Optional easy runs (Fri/Sun) are added as needed
+      to reach the week's volume target.
     </p>
   </div>
 
-  <script type="application/json" id="training-data" set:html={JSON.stringify(trainingSessions)} />
-  <script type="application/json" id="weekly-hours-data" set:html={JSON.stringify(weeklyHours)} />
+  <script type="application/json" id="training-data" set:html={JSON.stringify(trainingSlots)} />
 </Layout>
 
 <style>
@@ -536,49 +526,138 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
       overflow-x: auto;
     }
   }
+
+  :global(.s-select) {
+    font: inherit;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-card);
+    color: var(--color-text);
+    max-width: 100%;
+    margin-bottom: 0.35rem;
+  }
+
+  :global(.s-select:focus) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  :global(.s-option-name) {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+
+  :global(.s-blocks) {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  :global(.s-blocks p) {
+    margin: 0.35rem 0 0.15rem;
+  }
+
+  :global(.s-blocks ul) {
+    margin: 0 0 0.2rem;
+    padding-left: 1.1rem;
+  }
+
+  :global(.s-note) {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  #chartContainer :global(rect.chart-hit) {
+    fill: transparent;
+  }
+
+  #chartContainer :global(text.chart-label) {
+    fill: var(--color-text);
+  }
 </style>
 
 <script>
-  interface TrainingSession {
-    week: number;
-    day: string;
-    form: 'Running' | 'Swimming' | 'Ski erg' | 'Strength';
+  type Form = 'Running' | 'Swimming' | 'Ski erg' | 'Strength';
+
+  interface WorkoutOption {
+    id: string;
+    name: string;
     purpose: string;
     plan: string;
+    blocks?: { title: string; items?: string[] }[];
+    note?: string;
     volume: string;
-    optional: boolean;
+    hours: number;
   }
 
-  type WeeklyHours = Record<string, Record<TrainingSession['form'], number>>;
+  interface TrainingSlot {
+    id: string;
+    day: string;
+    form: Form;
+    optional: boolean;
+    defaultOption: string;
+    options: WorkoutOption[];
+  }
 
-  const sessions: TrainingSession[] = JSON.parse(document.getElementById('training-data')!.textContent!);
-  const weeklyHours: WeeklyHours = JSON.parse(document.getElementById('weekly-hours-data')!.textContent!);
+  const slots: TrainingSlot[] = JSON.parse(document.getElementById('training-data')!.textContent!);
 
-  const allForms: TrainingSession['form'][] = ['Running', 'Ski erg', 'Swimming', 'Strength'];
+  const allForms: Form[] = ['Running', 'Ski erg', 'Swimming', 'Strength'];
+  const storageKey = 'training-program-selections';
+
+  function loadSelections(): Record<string, string> {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey) || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  function saveSelections() {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(state.selected));
+    } catch {
+      // Storage unavailable (private mode etc.) — selections just won't persist.
+    }
+  }
 
   const state = {
-    forms: new Set<TrainingSession['form']>(allForms),
-    week: 'all',
+    forms: new Set<Form>(allForms),
     search: '',
     view: 'list' as 'list' | 'calendar',
+    selected: loadSelections(),
   };
 
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const dayOrder = Object.fromEntries(dayNames.map((d, i) => [d, i]));
 
-  document.getElementById('weekSelect')!.addEventListener('change', (e) => {
-    state.week = (e.target as HTMLSelectElement).value;
-    render();
-  });
+  function selectedOption(slot: TrainingSlot): WorkoutOption {
+    const id = state.selected[slot.id] ?? slot.defaultOption;
+    return slot.options.find((o) => o.id === id) ?? slot.options.find((o) => o.id === slot.defaultOption) ?? slot.options[0];
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
   document.getElementById('searchInput')!.addEventListener('input', (e) => {
     state.search = (e.target as HTMLInputElement).value.toLowerCase();
     render();
   });
 
+  document.getElementById('resetSelections')!.addEventListener('click', () => {
+    state.selected = {};
+    saveSelections();
+    render();
+    renderChart();
+  });
+
   document.querySelectorAll<HTMLButtonElement>('.chip[data-filter="form"]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const val = btn.dataset.value as TrainingSession['form'];
+      const val = btn.dataset.value as Form;
       if (state.forms.has(val)) {
         state.forms.delete(val);
         btn.classList.add('off');
@@ -599,88 +678,115 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
     });
   });
 
-  function getFiltered(): TrainingSession[] {
-    return sessions.filter((s) => {
+  // Delegated so it survives re-rendering of the list.
+  document.getElementById('content')!.addEventListener('change', (e) => {
+    const select = e.target as HTMLSelectElement;
+    if (!select.matches('select[data-slot]')) return;
+    state.selected[select.dataset.slot!] = select.value;
+    saveSelections();
+    render();
+    renderChart();
+    document.querySelector<HTMLSelectElement>(`select[data-slot="${select.dataset.slot}"]`)?.focus();
+  });
+
+  function getFiltered(): TrainingSlot[] {
+    return slots.filter((s) => {
       if (!state.forms.has(s.form)) return false;
-      if (state.week !== 'all' && String(s.week) !== state.week) return false;
       if (state.search) {
-        const haystack = `${s.plan} ${s.purpose} ${s.form}`.toLowerCase();
+        const optionText = s.options
+          .map((o) => `${o.name} ${o.purpose} ${o.plan} ${(o.blocks ?? []).map((b) => `${b.title} ${(b.items ?? []).join(' ')}`).join(' ')}`)
+          .join(' ');
+        const haystack = `${s.form} ${s.day} ${optionText}`.toLowerCase();
         if (!haystack.includes(state.search)) return false;
       }
       return true;
     });
   }
 
-  function groupByWeek(items: TrainingSession[]): Record<number, TrainingSession[]> {
-    const byWeek: Record<number, TrainingSession[]> = {};
-    for (const s of items) (byWeek[s.week] ??= []).push(s);
-    return byWeek;
+  function renderPlan(slot: TrainingSlot, opt: WorkoutOption): string {
+    const optTag = slot.optional ? '<span class="opt-tag">optional</span>' : '';
+    const head =
+      slot.options.length > 1
+        ? `<select class="s-select" data-slot="${slot.id}" aria-label="${slot.day} ${slot.form} workout">
+            ${slot.options
+              .map((o) => `<option value="${o.id}" ${o.id === opt.id ? 'selected' : ''}>${escapeHtml(o.name)}</option>`)
+              .join('')}
+          </select>${optTag}`
+        : '';
+    const blocks = opt.blocks
+      ? `<div class="s-blocks">
+          ${opt.blocks
+            .map(
+              (b) => `<p>${escapeHtml(b.title)}</p>${
+                b.items ? `<ul>${b.items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>` : ''
+              }`
+            )
+            .join('')}
+          ${opt.note ? `<p class="s-note">${escapeHtml(opt.note)}</p>` : ''}
+        </div>`
+      : '';
+    return `${head}<div>${escapeHtml(opt.plan)}${slot.options.length > 1 ? '' : optTag}</div>${blocks}`;
   }
 
-  function renderList(filtered: TrainingSession[], content: HTMLElement) {
-    const byWeek = groupByWeek(filtered);
-    for (const w of Object.keys(byWeek).map(Number).sort((a, b) => a - b)) {
-      const sessionsForWeek = byWeek[w].sort((a, b) => dayOrder[a.day] - dayOrder[b.day]);
-      const weekEl = document.createElement('div');
-      weekEl.className = 'week-block';
-      weekEl.innerHTML = `
-        <div class="week-head">
-          <span class="week-title">Week ${w}</span>
-          <span class="week-sub">of 5, rolling</span>
-        </div>
-        ${sessionsForWeek
+  function renderList(filtered: TrainingSlot[], content: HTMLElement) {
+    const weekEl = document.createElement('div');
+    weekEl.className = 'week-block';
+    weekEl.innerHTML = `
+      <div class="week-head">
+        <span class="week-title">Base week</span>
+        <span class="week-sub">repeating — pick a workout per session</span>
+      </div>
+      ${filtered
+        .map((s) => {
+          const opt = selectedOption(s);
+          return `
+        <div class="session ${s.optional ? 'optional' : ''}" data-form="${s.form}">
+          <div class="s-day">${s.day}</div>
+          <div class="s-form">
+            <span class="s-form-name">${s.form}</span>
+            <span class="s-purpose">${escapeHtml(opt.purpose)}</span>
+          </div>
+          <div class="s-plan">${renderPlan(s, opt)}</div>
+          <div class="s-vol">${escapeHtml(opt.volume)}</div>
+        </div>`;
+        })
+        .join('')}
+    `;
+    content.appendChild(weekEl);
+  }
+
+  function renderCalendar(filtered: TrainingSlot[], content: HTMLElement) {
+    const byDay: Record<string, TrainingSlot[]> = {};
+    dayNames.forEach((d) => (byDay[d] = []));
+    filtered.forEach((s) => byDay[s.day].push(s));
+
+    const weekEl = document.createElement('div');
+    weekEl.className = 'cal-week';
+    weekEl.innerHTML = `
+      <div class="cal-title">Base week <span class="week-sub">repeating</span></div>
+      <div class="cal-grid">
+        ${dayNames.map((d) => `<div class="cal-day-head">${d}</div>`).join('')}
+        ${dayNames
           .map(
-            (s) => `
-          <div class="session ${s.optional ? 'optional' : ''}" data-form="${s.form}">
-            <div class="s-day">${s.day}</div>
-            <div class="s-form">
-              <span class="s-form-name">${s.form}</span>
-              <span class="s-purpose">${s.purpose}</span>
-            </div>
-            <div class="s-plan">${s.plan}${s.optional ? '<span class="opt-tag">optional</span>' : ''}</div>
-            <div class="s-vol">${s.volume}</div>
+            (d) => `
+          <div class="cal-day-col">
+            ${byDay[d]
+              .map((s) => {
+                const opt = selectedOption(s);
+                return `
+              <div class="cal-pill ${s.optional ? 'optional' : ''}" data-form="${s.form}">
+                <span class="p-form">${s.form}</span>
+                ${escapeHtml(s.options.length > 1 ? opt.name : opt.purpose)}
+                <span class="p-vol">${escapeHtml(opt.volume)}</span>
+              </div>`;
+              })
+              .join('')}
           </div>`
           )
           .join('')}
-      `;
-      content.appendChild(weekEl);
-    }
-  }
-
-  function renderCalendar(filtered: TrainingSession[], content: HTMLElement) {
-    const byWeek = groupByWeek(filtered);
-    for (const w of Object.keys(byWeek).map(Number).sort((a, b) => a - b)) {
-      const byDay: Record<string, TrainingSession[]> = {};
-      dayNames.forEach((d) => (byDay[d] = []));
-      byWeek[w].forEach((s) => byDay[s.day].push(s));
-
-      const weekEl = document.createElement('div');
-      weekEl.className = 'cal-week';
-      weekEl.innerHTML = `
-        <div class="cal-title">Week ${w} <span class="week-sub">of 5, rolling</span></div>
-        <div class="cal-grid">
-          ${dayNames.map((d) => `<div class="cal-day-head">${d}</div>`).join('')}
-          ${dayNames
-            .map(
-              (d) => `
-            <div class="cal-day-col">
-              ${byDay[d]
-                .map(
-                  (s) => `
-                <div class="cal-pill ${s.optional ? 'optional' : ''}" data-form="${s.form}">
-                  <span class="p-form">${s.form}</span>
-                  ${s.purpose}
-                  <span class="p-vol">${s.volume}</span>
-                </div>`
-                )
-                .join('')}
-            </div>`
-            )
-            .join('')}
-        </div>
-      `;
-      content.appendChild(weekEl);
-    }
+      </div>
+    `;
+    content.appendChild(weekEl);
   }
 
   function render() {
@@ -699,57 +805,53 @@ const forms = ['Running', 'Ski erg', 'Swimming', 'Strength'] as const;
 
   function renderChart() {
     const container = document.getElementById('chartContainer')!;
-    const colorVar: Record<TrainingSession['form'], string> = {
+    const colorVar: Record<Form, string> = {
       Running: 'var(--color-form-run)',
       Swimming: 'var(--color-form-swim)',
       'Ski erg': 'var(--color-form-ski)',
       Strength: 'var(--color-form-strength)',
     };
 
-    const weeks = Object.keys(weeklyHours).sort((a, b) => Number(a) - Number(b));
-    const totals = weeks.map((w) => allForms.reduce((sum, f) => sum + weeklyHours[w][f], 0));
-    const maxTotal = Math.max(...totals);
-    const chartMax = Math.ceil(maxTotal / 2) * 2;
+    const hours = Object.fromEntries(allForms.map((f) => [f, 0])) as Record<Form, number>;
+    for (const s of slots) {
+      if (s.optional) continue;
+      hours[s.form] += selectedOption(s).hours;
+    }
+    const total = allForms.reduce((sum, f) => sum + hours[f], 0);
+    const chartMax = Math.max(5, Math.ceil(Math.max(...allForms.map((f) => hours[f]))));
 
     const width = 640;
-    const height = 280;
-    const padLeft = 36;
-    const padRight = 10;
-    const padTop = 10;
-    const padBottom = 26;
-    const plotH = height - padBottom - padTop;
-    const barW = 60;
-    const gap = (width - padLeft - padRight - barW * weeks.length) / (weeks.length + 1);
+    const padLeft = 72;
+    const padRight = 48;
+    const rowH = 34;
+    const barH = 18;
+    const padTop = 6;
+    const padBottom = 22;
+    const height = padTop + rowH * allForms.length + padBottom;
+    const plotW = width - padLeft - padRight;
+    const plotBottom = padTop + rowH * allForms.length;
 
-    let svg = `<svg viewBox="0 0 ${width} ${height}">`;
+    let svg = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Training hours per discipline for the selected week">`;
 
-    const steps = 5;
-    for (let i = 0; i <= steps; i++) {
-      const value = (chartMax / steps) * i;
-      const y = padTop + plotH - (value / chartMax) * plotH;
-      svg += `<line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke-width="1" />`;
-      svg += `<text x="${padLeft - 8}" y="${y + 4}" text-anchor="end" font-size="10">${value.toFixed(0)}h</text>`;
+    for (let v = 0; v <= chartMax; v++) {
+      const x = padLeft + (v / chartMax) * plotW;
+      svg += `<line x1="${x}" y1="${padTop}" x2="${x}" y2="${plotBottom}" stroke-width="1" />`;
+      svg += `<text x="${x}" y="${plotBottom + 15}" text-anchor="middle" font-size="10">${v}h</text>`;
     }
 
-    weeks.forEach((w, i) => {
-      const x = padLeft + gap + i * (barW + gap);
-      let yCursor = padTop + plotH;
-      allForms.forEach((f) => {
-        const val = weeklyHours[w][f];
-        const barH = (val / chartMax) * plotH;
-        yCursor -= barH;
-        svg += `<rect x="${x}" y="${yCursor}" width="${barW}" height="${barH}" fill="${colorVar[f]}" />`;
-      });
-      svg += `<text x="${x + barW / 2}" y="${height - padBottom + 16}" text-anchor="middle" font-size="11">Week ${w}</text>`;
-      svg += `<text class="chart-total" x="${x + barW / 2}" y="${padTop + plotH - (totals[i] / chartMax) * plotH - 6}" text-anchor="middle" font-size="10">${totals[i].toFixed(1)}h</text>`;
+    allForms.forEach((f, i) => {
+      const y = padTop + i * rowH + (rowH - barH) / 2;
+      const w = Math.max(0, (hours[f] / chartMax) * plotW);
+      svg += `<text class="chart-label" x="${padLeft - 8}" y="${y + barH / 2 + 4}" text-anchor="end" font-size="11">${f}</text>`;
+      svg += `<rect x="${padLeft}" y="${y}" width="${w}" height="${barH}" rx="3" fill="${colorVar[f]}" />`;
+      svg += `<text class="chart-total" x="${padLeft + w + 6}" y="${y + barH / 2 + 4}" font-size="10">${hours[f].toFixed(1)}h</text>`;
+      svg += `<rect class="chart-hit" x="0" y="${padTop + i * rowH}" width="${width}" height="${rowH}"><title>${f}: ${hours[f].toFixed(2)} h</title></rect>`;
     });
 
     svg += `</svg>`;
     container.innerHTML = svg;
 
-    const avg = totals.reduce((a, b) => a + b, 0) / totals.length;
-    document.getElementById('chartNote')!.textContent =
-      `Average: ${avg.toFixed(1)} h/week across the 5 weeks. Week 3 is highest due to the ÖTILLÖ simulation on the ski erg.`;
+    document.getElementById('chartNote')!.textContent = `Total: ${total.toFixed(1)} h for the selected week.`;
   }
 
   render();
