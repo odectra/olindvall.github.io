@@ -1,0 +1,1107 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HkField from '../../components/HkField.astro';
+import { GROUPS, PRICE_FIELDS, RULE_FIELDS } from '../../lib/huskopskalkyl/fields.ts';
+import { RULES_DATE } from '../../lib/huskopskalkyl/calc.ts';
+
+// Länk till reflektionen om verktyget. Sätt till null om reflektionen tas bort,
+// så att sidan aldrig visar en död länk.
+const reflectionHref: string | null = '/reflections/house-purchase-calculator';
+
+const ruleCount = RULE_FIELDS.reduce((n, g) => n + g.fields.length, 0);
+---
+<Layout
+  title="Husköpskalkyl"
+  description="Gratis husköpskalkyl: fyll i bostaden du vill köpa och bostaden du äger, och se direkt lån, boendekostnad, flyttkostnad, buffert vid inkomstbortfall och ett framtidsscenario. Allt räknas i din webbläsare."
+  lang="sv"
+  locale="sv_SE"
+  image="/images/projects/huskopskalkyl.png"
+>
+  <h1>Husköpskalkyl</h1>
+  <p class="intro">Fyll i bostaden du vill köpa och bostaden du äger, så ser du om affären går ihop.</p>
+
+  <p class="hk-disclaimer">
+    <strong>Ingen rådgivning.</strong> Beräkningarna är förenklade och reglerna kan ha ändrats.
+    Kontrollera med din bank och Skatteverket. Inga uppgifter lämnar din webbläsare.
+  </p>
+
+  {reflectionHref && (
+    <p class="hk-reflection"><a href={reflectionHref}>Läs om varför verktyget byggdes (på engelska) →</a></p>
+  )}
+
+  <div class="hk" id="hk">
+    <section class="hk-card pc" aria-labelledby="pc-title">
+      <div class="pc-head">
+        <span class="pc-title" id="pc-title">Köpesumma</span>
+        <span class="pc-price num" id="pc-price"></span>
+        <span class="pc-sqm num" id="pc-sqm"></span>
+        <span id="pc-zone"></span>
+      </div>
+
+      <div class="pc-scale" id="pc-scale">
+        <div class="pc-labels" aria-hidden="true">
+          <span class="pc-lbl pc-lbl-mv" id="pc-lbl-mv"></span>
+          <span class="pc-lbl pc-lbl-max" id="pc-lbl-max"></span>
+        </div>
+        <div class="pc-band" id="pc-band">
+          <div class="pc-zone pc-zone-good" id="pc-z-good"></div>
+          <div class="pc-zone pc-zone-mid" id="pc-z-mid"></div>
+          <div class="pc-zone pc-zone-bad" id="pc-z-bad"></div>
+          <div class="pc-mv" id="pc-mv" aria-hidden="true"></div>
+          <div
+            class="pc-max"
+            id="pc-max"
+            role="slider"
+            tabindex="0"
+            aria-label="Max vid budgivning"
+          ></div>
+          <div
+            class="pc-knob"
+            id="pc-knob"
+            role="slider"
+            tabindex="0"
+            aria-label="Köpesumma"
+          ></div>
+        </div>
+        <div class="pc-ticks num" id="pc-ticks" aria-hidden="true"></div>
+      </div>
+
+      <p class="pc-legend" id="pc-legend"></p>
+
+      <div class="pc-fields">
+        {PRICE_FIELDS.map((g) => (
+          <fieldset class="hk-fieldset">
+            <legend>{g.legend}</legend>
+            <div class="hk-fields">
+              {g.fields.map((f) => <HkField field={f} />)}
+            </div>
+          </fieldset>
+        ))}
+      </div>
+
+      <p class="pc-verdict" id="pc-verdict" aria-live="polite"></p>
+      <p class="hk-note">
+        Marknadsvärdet är din egen bedömning (jämför gärna med Boolis värdering eller en värderares
+        skattning). Det är gränsen för "Bra" och styr överpriset i tillgångsöversikten. Över "Medel upp
+        till" är det en dålig affär. Max är taket du bestämt i förväg och inte går över. Zonerna säger
+        vad bostaden är värd, inte vad din ekonomi klarar. Dra i knoppen, eller använd piltangenterna
+        (Shift för större steg).
+      </p>
+    </section>
+
+    <div class="hk-grid">
+      <div class="hk-inputs">
+        <div class="hk-toolbar">
+          <button type="button" class="hk-btn" id="btn-open-all">Visa alla fält</button>
+          <button type="button" class="hk-btn" id="btn-close-all">Dölj detaljer</button>
+        </div>
+
+        <details class="hk-card hk-where">
+          <summary>Var hittar jag uppgifterna?</summary>
+          <p>Alla förifyllda värden är påhittade exempel. Byt ut dem mot dina egna.</p>
+          <ul>
+            <li><strong>Köpesumma, boyta, driftkostnad, fastighetsavgift och pantbrev:</strong> annonsen på Booli, Hemnet eller mäklarens sida. Pantbreven kan du också få via mäklaren (gravationsbevis).</li>
+            <li><strong>Marknadsvärde:</strong> din egen bedömning. Jämför med Boolis värdering eller en värderares skattning.</li>
+            <li><strong>Försäljningspris och marknadsvärde för bostaden du äger:</strong> din bedömning eller mäklarens.</li>
+            <li><strong>Lån och ränta:</strong> din bank.</li>
+            <li><strong>Nettolön och kommunalskatt:</strong> din lönespecifikation.</li>
+            <li><strong>Inköpspris och förbättringsutgifter:</strong> köpekontraktet och dina kvitton.</li>
+            <li><strong>Uppsägningstid, inkomstförsäkring och sjuklön:</strong> anställningsavtalet, fackförbundet och a-kassan.</li>
+          </ul>
+        </details>
+
+        {GROUPS.map((g) => (
+          <section class="hk-card hk-group" id={`g-${g.id}`} aria-labelledby={`g-${g.id}-title`}>
+            <h2 class="hk-group-title" id={`g-${g.id}-title`}>{g.title}</h2>
+            {g.id === 'salj' && (
+              <label class="hk-check">
+                <input type="checkbox" id="selling" checked />
+                Jag säljer en bostad
+              </label>
+            )}
+            <div class="hk-group-body" data-group-body={g.id}>
+              {g.intro && <p class="hk-help">{g.intro}</p>}
+              <div class="hk-fields">
+                {g.important.map((f) => <HkField field={f} />)}
+              </div>
+              {g.more.length > 0 && (
+                <details class="hk-more" data-count={g.more.length}>
+                  <summary>Visa {g.more.length} fler fält</summary>
+                  <div class="hk-fields">
+                    {g.more.map((f) => <HkField field={f} />)}
+                  </div>
+                </details>
+              )}
+            </div>
+            {g.id === 'salj' && (
+              <p class="hk-help" id="selling-off-note" hidden>
+                Du säljer ingen bostad. Bara insatsen från sparandet räknas som kontantinsats.
+              </p>
+            )}
+          </section>
+        ))}
+
+        <section class="hk-card hk-group" aria-labelledby="g-regler-title">
+          <details class="hk-more hk-rules" data-count={ruleCount}>
+            <summary><h2 class="hk-group-title" id="g-regler-title">Regler</h2> <span class="hk-help-inline">regler enligt läget {RULES_DATE}</span></summary>
+            <p class="hk-help">
+              Riktvärden per hösten 2026. Kontrollera dem hos din bank, Skatteverket och din a-kassa,
+              och ändra här om något har ändrats.
+            </p>
+            {RULE_FIELDS.map((g) => (
+              <fieldset class="hk-fieldset">
+                <legend>{g.legend}</legend>
+                <div class="hk-fields">
+                  {g.fields.map((f) => <HkField field={f} />)}
+                </div>
+              </fieldset>
+            ))}
+          </details>
+        </section>
+
+        <section class="hk-card hk-save" aria-labelledby="save-title">
+          <h2 class="hk-group-title" id="save-title">Spara</h2>
+          <label class="hk-check">
+            <input type="checkbox" id="save-toggle" />
+            Spara mina inmatningar i den här webbläsaren
+          </label>
+          <p class="hk-help">Avstängt som standard. Sparas bara lokalt (localStorage), aldrig på någon server.</p>
+          <button type="button" class="hk-btn" id="btn-clear">Rensa allt</button>
+          <p class="hk-help">Återställer exempelvärdena och raderar det som sparats.</p>
+          <p class="hk-help" id="save-status" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <div class="hk-results" id="results">
+        <section class="hk-card" aria-labelledby="r-kpi-title">
+          <h2 class="sr-only" id="r-kpi-title">Nyckeltal</h2>
+          <div id="r-kpi"></div>
+          <label class="hk-check">
+            <input type="checkbox" id="loss-toggle" />
+            Simulera inkomstbortfall
+          </label>
+          <div id="r-kpi-loss"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-deal-title">
+          <h2 id="r-deal-title">Är affären bra?</h2>
+          <div id="r-deal"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-ctrl-title">
+          <h2 id="r-ctrl-title">Kontroller</h2>
+          <div id="r-ctrl"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-promise-title">
+          <h2 id="r-promise-title">Så fyller du i lånelöftet</h2>
+          <div id="r-promise"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-isk-title">
+          <h2 id="r-isk-title">ISK och handpenning</h2>
+          <div id="r-isk"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-cash-title">
+          <h2 id="r-cash-title">Kontantflöde</h2>
+          <div id="r-cash"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-loss-title">
+          <h2 id="r-loss-title">Reavinstförlust och återbäring</h2>
+          <div id="r-refund"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-rates-title">
+          <h2 id="r-rates-title">Månadskostnad vid fyra räntor</h2>
+          <div id="r-rates"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-scen-title">
+          <h2 id="r-scen-title">Olika köpesummor</h2>
+          <div id="r-scen"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-matrix-title">
+          <h2 id="r-matrix-title">Försäljningspris mot köpesumma</h2>
+          <div id="r-matrix"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-inc-title">
+          <h2 id="r-inc-title">Inkomstbortfall</h2>
+          <div id="r-inc"></div>
+          <div class="ch" id="ch-inc"></div>
+          <button type="button" class="hk-btn hk-view" data-view-for="inc" aria-pressed="false">Visa som tabell</button>
+          <div id="tb-inc" hidden></div>
+          <h3>Alla kombinationer</h3>
+          <div id="r-inc-all"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-nw-title">
+          <h2 id="r-nw-title">Tillgångar före och efter affären</h2>
+          <div id="r-nw"></div>
+        </section>
+
+        <section class="hk-card" aria-labelledby="r-mc-title">
+          <h2 id="r-mc-title">Framtidsscenario (Monte Carlo)</h2>
+          <div class="hk-field hk-years">
+            <label for="mc-years">Antal år: <strong id="mc-years-out">10</strong></label>
+            <input type="range" id="mc-years" min="1" max="30" step="1" value="10" />
+          </div>
+          <div id="r-mc"></div>
+          <div class="ch" id="ch-mc"></div>
+          <button type="button" class="hk-btn hk-view" data-view-for="mc" aria-pressed="false">Visa som tabell</button>
+          <div id="tb-mc" hidden></div>
+          <div id="r-mc-sum"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <section class="hk-privacy" aria-labelledby="privacy-title">
+    <h2 id="privacy-title">Vad sparas?</h2>
+    <p>
+      Ingenting lämnar din webbläsare. Sidan har ingen analys, inga cookies och skickar inga av dina
+      uppgifter till någon server. Allt räknas ut lokalt i webbläsaren.
+    </p>
+    <p>
+      Om du slår på "Spara mina inmatningar" sparas värdena i webbläsarens localStorage på den här
+      enheten, så att de finns kvar nästa gång. Stäng av det eller tryck "Rensa allt" för att radera dem.
+    </p>
+    <p>
+      Kalkylen är en förenklad mall och ingen rådgivning. Reglerna gäller enligt läget {RULES_DATE} och
+      kan ha ändrats. Kontrollera med din bank och Skatteverket innan du bestämmer dig.
+    </p>
+  </section>
+</Layout>
+
+<script>
+  import { init } from '../../lib/huskopskalkyl/ui.ts';
+  init();
+</script>
+
+<style>
+  .hk {
+    /* Verktyget behöver mer bredd än textspalten: två kolumner på bred skärm. */
+    --hk-w: min(1180px, calc(100vw - 3rem));
+    --hk-good: oklch(52% 0.12 150);
+    --hk-mid: oklch(64% 0.13 85);
+    --hk-bad: oklch(54% 0.16 28);
+    --hk-s1: oklch(53% 0.12 38);
+    --hk-s2: oklch(50% 0.12 245);
+    width: var(--hk-w);
+    margin-left: calc(50% - var(--hk-w) / 2);
+    margin-top: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .hk {
+      --hk-good: oklch(68% 0.12 150);
+      --hk-mid: oklch(76% 0.12 85);
+      --hk-bad: oklch(66% 0.14 28);
+      --hk-s1: oklch(66% 0.13 50);
+      --hk-s2: oklch(64% 0.11 240);
+    }
+  }
+
+  .intro {
+    color: var(--color-text-muted);
+    margin-top: 1rem;
+  }
+
+  .hk-disclaimer {
+    margin: 1.25rem 0 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius);
+  }
+
+  .hk-reflection {
+    margin: 1rem 0 0;
+    font-size: 0.9rem;
+  }
+
+  .hk :global(.num),
+  .hk :global(td),
+  .hk :global(input) {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hk :global(.sr-only),
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .hk-card {
+    padding: 1.1rem 1.15rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    min-width: 0;
+  }
+
+  .hk-card h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  .hk-card :global(h3) {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  .hk-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  @media (min-width: 960px) {
+    .hk-grid {
+      grid-template-columns: 340px minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .hk-inputs,
+  .hk-results {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .hk-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .hk-btn {
+    font: inherit;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .hk-btn:hover {
+    border-color: var(--color-accent);
+  }
+
+  .hk :global(:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .hk-group-title {
+    font-size: 1.05rem !important;
+    margin: 0 0 0.6rem !important;
+  }
+
+  .hk-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .hk-inputs .hk-fields {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 560px) and (max-width: 959px) {
+    .hk-inputs .hk-fields {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .hk :global(.hk-field) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .hk :global(.hk-field label) {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .hk :global(.hk-input) {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+  }
+
+  .hk :global(.hk-input:focus-within) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  .hk :global(.hk-input input) {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    padding: 0.45rem 0.6rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    text-align: right;
+  }
+
+  .hk :global(.hk-input input:focus) {
+    outline: none;
+  }
+
+  .hk :global(.hk-unit) {
+    display: flex;
+    align-items: center;
+    padding: 0 0.6rem 0 0.1rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .hk :global(.hk-field select) {
+    font: inherit;
+    padding: 0.45rem 0.6rem;
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .hk :global(.hk-range) {
+    width: 100%;
+    accent-color: var(--color-accent);
+  }
+
+  .hk :global(.hk-help),
+  .hk-note {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    line-height: 1.45;
+  }
+
+  .hk-help-inline {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .hk-group-body > .hk-help {
+    margin-bottom: 0.75rem;
+  }
+
+  .hk-more {
+    margin-top: 0.9rem;
+  }
+
+  .hk-more > summary,
+  .hk-where > summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--color-accent);
+  }
+
+  .hk-more[open] > summary {
+    margin-bottom: 0.8rem;
+  }
+
+  .hk-rules {
+    margin-top: 0;
+  }
+
+  .hk-rules > summary {
+    color: var(--color-text);
+  }
+
+  .hk-rules > summary h2 {
+    display: inline;
+  }
+
+  .hk-rules > .hk-help {
+    margin-bottom: 0.5rem;
+  }
+
+  .hk-where ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.1rem;
+    font-size: 0.8rem;
+  }
+
+  .hk-where p {
+    margin: 0.6rem 0 0;
+    font-size: 0.8rem;
+  }
+
+  .hk-fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0.75rem 0 0;
+    min-width: 0;
+  }
+
+  .hk-fieldset legend {
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .hk-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .hk-check input {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: var(--color-accent);
+  }
+
+  .hk-save .hk-btn {
+    margin: 0.75rem 0 0.25rem;
+  }
+
+  /* ---------- Prisreglaget ---------- */
+
+  .pc-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.9rem;
+  }
+
+  .pc-title {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    width: 100%;
+  }
+
+  .pc-price {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .pc-sqm {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .pc-scale {
+    position: relative;
+    margin: 1.2rem 0 0;
+    padding: 0 12px;
+  }
+
+  .pc-labels {
+    position: relative;
+    height: 2.3rem;
+  }
+
+  .pc-lbl {
+    position: absolute;
+    bottom: 0.25rem;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+  }
+
+  .pc-lbl :global(b) {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .pc-band {
+    position: relative;
+    z-index: 1;
+    height: 28px;
+    border-radius: 999px;
+    touch-action: none;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .pc-zone {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+  }
+
+  .pc-zone-good {
+    background: color-mix(in oklch, var(--hk-good) 55%, transparent);
+    border-radius: 999px 0 0 999px;
+  }
+
+  .pc-zone-mid {
+    background: color-mix(in oklch, var(--hk-mid) 60%, transparent);
+  }
+
+  .pc-zone-bad {
+    background: color-mix(in oklch, var(--hk-bad) 55%, transparent);
+    border-radius: 0 999px 999px 0;
+  }
+
+  .pc-mv {
+    position: absolute;
+    top: -6px;
+    bottom: -6px;
+    width: 0;
+    border-left: 2px dashed var(--color-text-muted);
+    transform: translateX(-1px);
+    pointer-events: none;
+  }
+
+  .pc-max {
+    position: absolute;
+    top: -4px;
+    /* Sticker ut under bandet så att den går att greppa även när knoppen ligger ovanpå. */
+    bottom: -14px;
+    width: 8px;
+    margin-left: -4px;
+    background: var(--color-text);
+    border-radius: 3px;
+    cursor: ew-resize;
+    touch-action: none;
+  }
+
+  .pc-max::after,
+  .pc-knob::after {
+    content: '';
+    position: absolute;
+    inset: -10px -10px;
+  }
+
+  .pc-knob {
+    position: absolute;
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border-radius: 50%;
+    background: var(--color-card);
+    border: 3px solid var(--color-accent);
+    box-shadow: var(--shadow-card);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .pc-knob:active {
+    cursor: grabbing;
+  }
+
+  .pc-ticks {
+    position: relative;
+    height: 1.4rem;
+    margin-top: 0.3rem;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+  }
+
+  .pc-ticks :global(span) {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .pc-ticks :global(span::before) {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -0.3rem;
+    height: 0.25rem;
+    border-left: 1px solid var(--color-border);
+  }
+
+  .pc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin: 0.4rem 0 0;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .pc-legend :global(i) {
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.5rem;
+    margin-right: 0.3rem;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+
+  .pc-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0 1.5rem;
+  }
+
+  @media (min-width: 720px) {
+    .pc-fields {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  .pc-verdict {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    margin: 1rem 0 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  /* ---------- Resultat ---------- */
+
+  .hk :global(.pill) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-text);
+    border: 1px solid;
+  }
+
+  .hk :global(.pill-good) {
+    background: color-mix(in oklch, var(--hk-good) 18%, transparent);
+    border-color: var(--hk-good);
+  }
+
+  .hk :global(.pill-mid) {
+    background: color-mix(in oklch, var(--hk-mid) 22%, transparent);
+    border-color: var(--hk-mid);
+  }
+
+  .hk :global(.pill-bad) {
+    background: color-mix(in oklch, var(--hk-bad) 18%, transparent);
+    border-color: var(--hk-bad);
+  }
+
+  .hk :global(.kpis) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hk :global(.kpi) {
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .hk :global(.kpi-label) {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .hk :global(.kpi-value) {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hk :global(.kpi-sub) {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .hk :global(.lamp) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  .hk :global(.lamp-dot) {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-weight: 700;
+    color: var(--color-card);
+  }
+
+  .hk :global(.lamp-good .lamp-dot) { background: var(--hk-good); }
+  .hk :global(.lamp-mid .lamp-dot) { background: var(--hk-mid); }
+  .hk :global(.lamp-bad .lamp-dot) { background: var(--hk-bad); }
+
+  .hk :global(.checks) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hk :global(.check) {
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .hk :global(.check-head) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.6rem;
+  }
+
+  .hk :global(.check-title) {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-right: auto;
+  }
+
+  .hk :global(.check-value) {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9rem;
+  }
+
+  .hk :global(.check p),
+  .hk :global(.hk-text) {
+    margin: 0.3rem 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .hk :global(.check details) {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .hk :global(.check summary) {
+    cursor: pointer;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+  }
+
+  .hk :global(.table-wrap) {
+    overflow-x: auto;
+    margin: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hk :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .hk :global(th),
+  .hk :global(td) {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .hk :global(th:first-child),
+  .hk :global(td:first-child) {
+    text-align: left;
+    white-space: normal;
+    min-width: 8rem;
+  }
+
+  .hk :global(th) {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .hk :global(tr.sel td),
+  .hk :global(td.sel) {
+    background: color-mix(in oklch, var(--color-accent) 12%, transparent);
+    font-weight: 600;
+  }
+
+  .hk :global(tr.sum td) {
+    font-weight: 600;
+    border-top: 2px solid var(--color-border);
+  }
+
+  .hk :global(.neg) {
+    color: var(--hk-bad);
+  }
+
+  .hk :global(.over) {
+    color: var(--hk-bad);
+    font-weight: 600;
+  }
+
+  .hk :global(dl.rows) {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0;
+    font-size: 0.85rem;
+  }
+
+  .hk :global(dl.rows dt),
+  .hk :global(dl.rows dd) {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--color-border);
+    margin: 0;
+  }
+
+  .hk :global(dl.rows dd) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    padding-left: 0.75rem;
+  }
+
+  .hk :global(dl.rows .strong) {
+    font-weight: 600;
+  }
+
+  .hk-view {
+    margin-top: 0.5rem;
+  }
+
+  .hk-years {
+    margin-bottom: 0.75rem;
+    max-width: 22rem;
+  }
+
+  .hk-years input {
+    accent-color: var(--color-accent);
+  }
+
+  /* ---------- Diagram ---------- */
+
+  .ch {
+    position: relative;
+    margin-top: 0.75rem;
+  }
+
+  .ch :global(svg) {
+    display: block;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .ch :global(.ch-grid) {
+    stroke: var(--color-border);
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+
+  .ch :global(.ch-axis) {
+    stroke: var(--color-text-muted);
+    stroke-width: 1;
+    opacity: 0.6;
+  }
+
+  .ch :global(.ch-ref) {
+    stroke: var(--color-text-muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 4;
+  }
+
+  .ch :global(.ch-tick) {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    fill: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ch :global(.ch-label) {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    fill: var(--color-text);
+  }
+
+  .ch :global(.ch-label-ref) {
+    fill: var(--color-text-muted);
+  }
+
+  .ch :global(.ch-end) {
+    stroke: var(--color-card);
+    stroke-width: 2;
+  }
+
+  .ch :global(.ch-dot) {
+    stroke: var(--color-card);
+    stroke-width: 2;
+    pointer-events: none;
+  }
+
+  .ch :global(.ch-hair) {
+    stroke: var(--color-text-muted);
+    stroke-width: 1;
+    pointer-events: none;
+  }
+
+  .ch :global(.ch-tip) {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    padding: 0.45rem 0.6rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    font-size: 0.75rem;
+    line-height: 1.45;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ch :global(.ch-tip i) {
+    display: inline-block;
+    width: 10px;
+    height: 3px;
+    margin-right: 0.35rem;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+
+  .hk-privacy {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+  }
+
+  .hk-privacy h2 {
+    font-size: 1.2rem;
+  }
+</style>
