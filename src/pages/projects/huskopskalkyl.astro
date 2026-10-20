@@ -4,9 +4,9 @@ import HkField from '../../components/HkField.astro';
 import { GROUPS, PRICE_FIELDS, RULE_FIELDS } from '../../lib/huskopskalkyl/fields.ts';
 import { RULES_DATE } from '../../lib/huskopskalkyl/calc.ts';
 
-// Länk till en reflektion om verktyget. Lämnas tom tills reflektionen är publicerad
-// på /reflections, så att sidan aldrig visar en död länk.
-const reflectionHref: string | null = null;
+// Länk till reflektionen om verktyget. Sätt till null om reflektionen tas bort,
+// så att sidan aldrig visar en död länk.
+const reflectionHref: string | null = '/reflections/house-purchase-calculator';
 
 const ruleCount = RULE_FIELDS.reduce((n, g) => n + g.fields.length, 0);
 ---
@@ -26,7 +26,7 @@ const ruleCount = RULE_FIELDS.reduce((n, g) => n + g.fields.length, 0);
   </p>
 
   {reflectionHref && (
-    <p class="hk-reflection"><a href={reflectionHref}>Läs om hur verktyget byggdes →</a></p>
+    <p class="hk-reflection"><a href={reflectionHref}>Läs om varför verktyget byggdes (på engelska) →</a></p>
   )}
 
   <div class="hk" id="hk">
