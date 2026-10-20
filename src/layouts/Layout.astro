@@ -6,6 +6,8 @@ interface Props {
   type?: 'website' | 'article';
   publishDate?: Date;
   tags?: string[];
+  lang?: string;
+  locale?: string;
 }
 
 const {
@@ -15,6 +17,8 @@ const {
   type = 'website',
   publishDate,
   tags = [],
+  lang = 'en',
+  locale = 'en_US',
 } = Astro.props;
 
 const pageTitle = `${title} — Oskar Lindvall`;
@@ -64,7 +68,7 @@ const articleSchema =
     : null;
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -81,7 +85,7 @@ const articleSchema =
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={ogImageURL} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={locale} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
@@ -198,7 +202,8 @@ const articleSchema =
       nav ul {
         list-style: none;
         display: flex;
-        gap: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.25rem 1.25rem;
         margin: 0;
         padding: 0;
         font-size: 0.9rem;

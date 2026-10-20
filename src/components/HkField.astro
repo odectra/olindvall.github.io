@@ -1,0 +1,52 @@
+---
+// Ett indatafält i Husköpskalkylen: etikett, talfält eller val, enhet och hjälptext.
+import type { Field } from '../lib/huskopskalkyl/fields.ts';
+import { DEFAULTS } from '../lib/huskopskalkyl/calc.ts';
+import { fieldValue } from '../lib/huskopskalkyl/format.ts';
+
+interface Props {
+  field: Field;
+}
+
+const { field } = Astro.props;
+const value = DEFAULTS[field.id];
+const inputId = `f-${field.id}`;
+const helpId = field.help ? `${inputId}-help` : undefined;
+---
+<div class="hk-field">
+  <label for={inputId}>{field.label}{field.unit && <span class="sr-only"> ({field.unit})</span>}</label>
+  {field.options ? (
+    <select id={inputId} data-key={field.id} aria-describedby={helpId}>
+      {field.options.map((o) => (
+        <option value={o.value} selected={o.value === value}>{o.label}</option>
+      ))}
+    </select>
+  ) : (
+    <div class="hk-input">
+      <input
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        spellcheck="false"
+        id={inputId}
+        data-key={field.id}
+        value={fieldValue(value)}
+        aria-describedby={helpId}
+      />
+      {field.unit && <span class="hk-unit" aria-hidden="true">{field.unit}</span>}
+    </div>
+  )}
+  {field.range && (
+    <input
+      type="range"
+      class="hk-range"
+      data-range-for={field.id}
+      min={field.range.min}
+      max={field.range.max}
+      step={field.range.step}
+      value={value}
+      aria-label={`${field.label}, reglage`}
+    />
+  )}
+  {field.help && <p class="hk-help" id={helpId}>{field.help}</p>}
+</div>
