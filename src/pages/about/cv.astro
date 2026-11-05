@@ -1,50 +1,166 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import CountryTag from '../../components/CountryTag.astro';
+import InvolvementIcon from '../../components/InvolvementIcon.astro';
+import { formatDuration, formatPeriod, monthsCovered, monthsIn, type Period } from '../../lib/cv-duration';
+import { INVOLVEMENTS, INVOLVEMENT_LABELS, type CountryCode, type Involvement } from '../../lib/countries';
 
-const experience = [
+interface RoleCountry {
+  code: CountryCode;
+  kinds: Involvement[];
+}
+
+interface Role extends Period {
+  id: string;
+  title: string;
+  org: string;
+  logo?: string;
+  logoImage?: string;
+  location?: string;
+  current?: boolean;
+  countries: RoleCountry[];
+  assignments?: Role[];
+}
+
+
+// Dates are 'YYYY-MM', inclusive. Omit `end` for an ongoing role.
+// `countries`: where the role was based, led team members, visited clients or had customers.
+const experience: Role[] = [
   {
+    id: 'az-ad',
     title: 'Associate Director Development Quality — Quality Systems',
     org: 'AstraZeneca',
     logoImage: '/images/logos/astrazeneca.png',
-    period: 'Jul 2023 – Present',
+    start: '2023-07',
     location: 'Mölndal',
     current: true,
+    countries: [
+      { code: 'SE', kinds: ['based', 'team'] },
+      { code: 'GB', kinds: ['team'] },
+    ],
   },
   {
+    id: 'mentice-pmo',
     title: 'Director, Project Management Office',
     org: 'Mentice',
     logoImage: '/images/logos/mentice.png',
-    period: 'Oct 2022 – Jul 2023',
+    start: '2022-10',
+    end: '2023-07',
     location: 'Gothenburg, Sweden',
+    countries: [
+      { code: 'SE', kinds: ['based', 'team'] },
+      { code: 'US', kinds: ['team'] },
+    ],
   },
   {
+    id: 'mentice-product',
     title: 'Product Manager — Services & Strategy',
     org: 'Mentice',
     logoImage: '/images/logos/mentice.png',
-    period: 'Dec 2021 – Oct 2022',
+    start: '2021-12',
+    end: '2022-10',
     location: 'Gothenburg, Sweden',
+    countries: [
+      { code: 'SE', kinds: ['based'] },
+      { code: 'ES', kinds: ['visits'] },
+    ],
   },
   {
+    id: 'mentice-pm',
     title: 'Project Manager, Medical Device Industry',
     org: 'Mentice',
     logoImage: '/images/logos/mentice.png',
-    period: 'Jun 2019 – Dec 2021',
+    start: '2019-06',
+    end: '2021-12',
     location: 'Gothenburg, Sweden',
+    countries: [
+      { code: 'SE', kinds: ['based', 'team'] },
+      { code: 'US', kinds: ['team', 'customers'] },
+      { code: 'BE', kinds: ['visits', 'customers'] },
+    ],
   },
   {
+    id: 'knightec',
     title: 'Consultant — Quality & Management',
     org: 'Knightec',
     logo: 'KN',
-    period: 'Sep 2015 – May 2019',
+    start: '2015-09',
+    end: '2019-05',
+    countries: [{ code: 'SE', kinds: ['based'] }],
     assignments: [
-      { title: 'Project Manager', org: 'ABB Robotics — Spot Welding Application Center', logoImage: '/images/logos/abb.png', period: 'Oct 2018 – Apr 2019' },
-      { title: 'Lead Test Engineer', org: 'Care of Sweden AB', logoImage: '/images/logos/care-of-sweden.png', period: 'Jun 2018 – Nov 2018' },
-      { title: 'Validation Engineer', org: 'Fresenius Kabi', logoImage: '/images/logos/fresenius-kabi.jpg', period: 'May 2018' },
-      { title: 'Project Manager', org: 'AstraZeneca — Sweden Operations', logoImage: '/images/logos/astrazeneca.png', period: 'Jan 2016 – Mar 2018' },
+      {
+        id: 'abb',
+        title: 'Project Manager',
+        org: 'ABB Robotics — Spot Welding Application Center',
+        logoImage: '/images/logos/abb.png',
+        start: '2018-10',
+        end: '2019-04',
+        countries: [
+          { code: 'SE', kinds: ['based'] },
+          { code: 'CN', kinds: ['customers'] },
+        ],
+      },
+      {
+        id: 'care-of-sweden',
+        title: 'Lead Test Engineer',
+        org: 'Care of Sweden AB',
+        logoImage: '/images/logos/care-of-sweden.png',
+        start: '2018-06',
+        end: '2018-11',
+        countries: [{ code: 'SE', kinds: ['based'] }],
+      },
+      {
+        id: 'fresenius',
+        title: 'Validation Engineer',
+        org: 'Fresenius Kabi',
+        logoImage: '/images/logos/fresenius-kabi.jpg',
+        start: '2018-05',
+        end: '2018-05',
+        countries: [{ code: 'NO', kinds: ['based'] }],
+      },
+      {
+        id: 'az-pm',
+        title: 'Project Manager',
+        org: 'AstraZeneca — Sweden Operations',
+        logoImage: '/images/logos/astrazeneca.png',
+        start: '2016-01',
+        end: '2018-03',
+        countries: [{ code: 'SE', kinds: ['based'] }],
+      },
     ],
   },
 ];
 
+// Accumulated experience per category. Overlapping months are counted once.
+const categoryDefs: { name: string; roles: string[] }[] = [
+  { name: 'Line Manager', roles: ['az-ad', 'mentice-pmo'] },
+  { name: 'Team Leadership', roles: ['az-ad', 'az-pm', 'abb', 'mentice-pmo', 'mentice-product', 'mentice-pm'] },
+  { name: 'Pharma Industry', roles: ['az-ad', 'az-pm', 'fresenius'] },
+  { name: 'Medical Device Industry', roles: ['care-of-sweden', 'mentice-pmo', 'mentice-product', 'mentice-pm'] },
+  { name: 'IT / Data Science / Robotics', roles: ['abb', 'mentice-pmo', 'mentice-product', 'mentice-pm', 'az-ad'] },
+];
+
+// Periods behind a duration, for the client script that keeps ongoing
+// durations current between deploys. Only set when something is ongoing.
+const livePeriods = (periods: Period[]) =>
+  periods.some((p) => !p.end) ? JSON.stringify(periods.map(({ start, end }) => ({ start, end }))) : undefined;
+
+const allRoles = experience.flatMap((r) => [r, ...(r.assignments ?? [])]);
+const roleById = new Map(allRoles.map((r) => [r.id, r]));
+
+const categories = categoryDefs.map((c) => {
+  const roles = c.roles.map((id) => roleById.get(id)!);
+  const orgs = [...new Set(roles.map((r) => r.org.split(' — ')[0]))];
+  return { name: c.name, duration: formatDuration(monthsCovered(roles)), periods: livePeriods(roles), orgs };
+});
+
+// Every country across all roles, with the union of involvements.
+const countryKinds = new Map<CountryCode, Set<Involvement>>();
+for (const c of allRoles.flatMap((r) => r.countries)) {
+  if (!countryKinds.has(c.code)) countryKinds.set(c.code, new Set());
+  c.kinds.forEach((k) => countryKinds.get(c.code)!.add(k));
+}
+const allCountries = [...countryKinds].map(([code, kinds]) => ({ code, kinds: [...kinds] }));
 const education = [
   {
     degree: "Master's, Industrial Management — Management and Economics of Innovation",
@@ -95,7 +211,10 @@ const other = [
               {job.title}
               {job.current && <span class="badge">Current</span>}
             </div>
-            <div class="entry-meta">{job.org} · {job.period}{job.location && ` · ${job.location}`}</div>
+            <div class="entry-meta">{job.org} · <span class="nowrap">{formatPeriod(job)}</span> · <span class="nowrap" data-periods={livePeriods([job])}>{formatDuration(monthsIn(job))}</span>{job.location && <> · <span class="nowrap">{job.location}</span></>}</div>
+            <div class="flags">
+              {job.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
+            </div>
             {job.assignments && (
               <ul class="sub-list">
                 {job.assignments.map((a) => (
@@ -107,7 +226,10 @@ const other = [
                     )}
                     <div class="entry-body">
                       <div class="entry-title entry-title-sub">{a.title}</div>
-                      <div class="entry-meta">{a.org} · {a.period}</div>
+                      <div class="entry-meta">{a.org} · <span class="nowrap">{formatPeriod(a)}</span> · <span class="nowrap" data-periods={livePeriods([a])}>{formatDuration(monthsIn(a))}</span>{a.location && <> · <span class="nowrap">{a.location}</span></>}</div>
+                      <div class="flags">
+                        {a.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -161,8 +283,51 @@ const other = [
     </ul>
   </section>
 
+  <section>
+    <h2>Accumulated experience</h2>
+    <ul class="entry-list summary-list">
+      {categories.map((c) => (
+        <li>
+          <div class="summary-row">
+            <span class="entry-title">{c.name}</span>
+            <span class="summary-duration" data-periods={c.periods}>{c.duration}</span>
+          </div>
+          <div class="entry-meta">{c.orgs.join(' · ')}</div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2>International experience</h2>
+    <ul class="country-list">
+      {allCountries.map((c) => (
+        <li><CountryTag code={c.code} kinds={c.kinds} showName /></li>
+      ))}
+    </ul>
+    <ul class="legend">
+      {INVOLVEMENTS.map((k) => (
+        <li><InvolvementIcon kind={k} /> {INVOLVEMENT_LABELS[k]}</li>
+      ))}
+    </ul>
+  </section>
+
   <p class="more">Full details on <a href="https://www.linkedin.com/in/oskar-lindvall-35735854/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.</p>
 </Layout>
+
+<script>
+  // Recompute durations that include an ongoing role, so they stay current
+  // without a redeploy. The build-time text is the no-JS fallback.
+  import { formatDuration, monthsCovered } from '../../lib/cv-duration';
+
+  document.querySelectorAll<HTMLElement>('[data-periods]').forEach((el) => {
+    try {
+      el.textContent = formatDuration(monthsCovered(JSON.parse(el.dataset.periods!)));
+    } catch {
+      /* keep build-time value */
+    }
+  });
+</script>
 
 <style>
   .back {
@@ -283,6 +448,66 @@ const other = [
   .entry-title-sub {
     font-weight: 500;
     font-size: 0.95rem;
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    margin-top: 0.4rem;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .summary-duration {
+    flex-shrink: 0;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent);
+  }
+
+  .country-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+  }
+
+  .country-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .legend {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
   }
 
   .more {

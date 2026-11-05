@@ -1,0 +1,38 @@
+---
+// A flag followed by tiny muted icons for how the role connected to that country.
+import Flag from './Flag.astro';
+import InvolvementIcon from './InvolvementIcon.astro';
+import { COUNTRY_NAMES, INVOLVEMENTS, INVOLVEMENT_LABELS, type CountryCode, type Involvement } from '../lib/countries';
+
+interface Props {
+  code: CountryCode;
+  kinds: Involvement[];
+  showName?: boolean;
+}
+
+const { code, kinds, showName = false } = Astro.props;
+const ordered = INVOLVEMENTS.filter((k) => kinds.includes(k));
+const title = `${COUNTRY_NAMES[code]}: ${ordered.map((k) => INVOLVEMENT_LABELS[k].toLowerCase()).join('; ')}`;
+---
+<span class="country-tag" title={title}>
+  <Flag code={code} title={title} />
+  {showName && <span class="name">{COUNTRY_NAMES[code]}</span>}
+  <span class="kinds">
+    {ordered.map((k) => <InvolvementIcon kind={k} />)}
+  </span>
+</span>
+
+<style>
+  .country-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .kinds {
+    display: inline-flex;
+    gap: 0.15rem;
+    color: var(--color-text-muted);
+    opacity: 0.75;
+  }
+</style>
