@@ -1,12 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Flag from '../../components/Flag.astro';
+import CountryTag from '../../components/CountryTag.astro';
+import InvolvementIcon from '../../components/InvolvementIcon.astro';
 import { formatDuration, formatPeriod, monthsCovered, monthsIn, type Period } from '../../lib/cv-duration';
-import { COUNTRY_NAMES, type CountryCode } from '../../lib/countries';
+import { INVOLVEMENTS, INVOLVEMENT_LABELS, type CountryCode, type Involvement } from '../../lib/countries';
 
 interface RoleCountry {
   code: CountryCode;
-  note: string;
+  kinds: Involvement[];
 }
 
 interface Role extends Period {
@@ -23,7 +24,7 @@ interface Role extends Period {
 
 
 // Dates are 'YYYY-MM', inclusive. Omit `end` for an ongoing role.
-// `countries`: where the role's team members, customers or travel were.
+// `countries`: where the role was based, led team members, visited clients or had customers.
 const experience: Role[] = [
   {
     id: 'az-ad',
@@ -34,8 +35,8 @@ const experience: Role[] = [
     location: 'Mölndal',
     current: true,
     countries: [
-      { code: 'SE', note: 'team members' },
-      { code: 'GB', note: 'team members' },
+      { code: 'SE', kinds: ['based', 'team'] },
+      { code: 'GB', kinds: ['team'] },
     ],
   },
   {
@@ -47,8 +48,8 @@ const experience: Role[] = [
     end: '2023-07',
     location: 'Gothenburg, Sweden',
     countries: [
-      { code: 'SE', note: 'team members' },
-      { code: 'US', note: 'team members' },
+      { code: 'SE', kinds: ['based', 'team'] },
+      { code: 'US', kinds: ['team'] },
     ],
   },
   {
@@ -60,8 +61,8 @@ const experience: Role[] = [
     end: '2022-10',
     location: 'Gothenburg, Sweden',
     countries: [
-      { code: 'SE', note: 'based' },
-      { code: 'ES', note: 'visits' },
+      { code: 'SE', kinds: ['based'] },
+      { code: 'ES', kinds: ['visits'] },
     ],
   },
   {
@@ -73,9 +74,9 @@ const experience: Role[] = [
     end: '2021-12',
     location: 'Gothenburg, Sweden',
     countries: [
-      { code: 'SE', note: 'team members' },
-      { code: 'US', note: 'team members, customers' },
-      { code: 'BE', note: 'customers, trips' },
+      { code: 'SE', kinds: ['based', 'team'] },
+      { code: 'US', kinds: ['team', 'customers'] },
+      { code: 'BE', kinds: ['visits', 'customers'] },
     ],
   },
   {
@@ -85,7 +86,7 @@ const experience: Role[] = [
     logo: 'KN',
     start: '2015-09',
     end: '2019-05',
-    countries: [{ code: 'SE', note: 'based' }],
+    countries: [{ code: 'SE', kinds: ['based'] }],
     assignments: [
       {
         id: 'abb',
@@ -95,8 +96,8 @@ const experience: Role[] = [
         start: '2018-10',
         end: '2019-04',
         countries: [
-          { code: 'SE', note: 'based' },
-          { code: 'CN', note: 'customer' },
+          { code: 'SE', kinds: ['based'] },
+          { code: 'CN', kinds: ['customers'] },
         ],
       },
       {
@@ -106,7 +107,7 @@ const experience: Role[] = [
         logoImage: '/images/logos/care-of-sweden.png',
         start: '2018-06',
         end: '2018-11',
-        countries: [{ code: 'SE', note: 'based' }],
+        countries: [{ code: 'SE', kinds: ['based'] }],
       },
       {
         id: 'fresenius',
@@ -115,7 +116,7 @@ const experience: Role[] = [
         logoImage: '/images/logos/fresenius-kabi.jpg',
         start: '2018-05',
         end: '2018-05',
-        countries: [{ code: 'NO', note: 'based' }],
+        countries: [{ code: 'NO', kinds: ['based'] }],
       },
       {
         id: 'az-pm',
@@ -124,7 +125,7 @@ const experience: Role[] = [
         logoImage: '/images/logos/astrazeneca.png',
         start: '2016-01',
         end: '2018-03',
-        countries: [{ code: 'SE', note: 'based' }],
+        countries: [{ code: 'SE', kinds: ['based'] }],
       },
     ],
   },
@@ -139,23 +140,27 @@ const categoryDefs: { name: string; roles: string[] }[] = [
   { name: 'IT / Data Science / Robotics', roles: ['abb', 'mentice-pmo', 'mentice-product', 'mentice-pm', 'az-ad'] },
 ];
 
+// Periods behind a duration, for the client script that keeps ongoing
+// durations current between deploys. Only set when something is ongoing.
+const livePeriods = (periods: Period[]) =>
+  periods.some((p) => !p.end) ? JSON.stringify(periods.map(({ start, end }) => ({ start, end }))) : undefined;
+
 const allRoles = experience.flatMap((r) => [r, ...(r.assignments ?? [])]);
 const roleById = new Map(allRoles.map((r) => [r.id, r]));
 
 const categories = categoryDefs.map((c) => {
   const roles = c.roles.map((id) => roleById.get(id)!);
   const orgs = [...new Set(roles.map((r) => r.org.split(' — ')[0]))];
-  return { name: c.name, duration: formatDuration(monthsCovered(roles)), orgs };
+  return { name: c.name, duration: formatDuration(monthsCovered(roles)), periods: livePeriods(roles), orgs };
 });
 
-const allCountries = [...new Set(allRoles.flatMap((r) => r.countries.map((c) => c.code)))];
-
-const flagTitle = (c: RoleCountry) => `${COUNTRY_NAMES[c.code]} — ${c.note}`;
-// Org names can be long and may wrap; the other parts stay on one line each.
-const roleMeta = (r: Role) =>
-  [formatPeriod(r), formatDuration(monthsIn(r)), r.location]
-    .filter(Boolean) as string[];
-
+// Every country across all roles, with the union of involvements.
+const countryKinds = new Map<CountryCode, Set<Involvement>>();
+for (const c of allRoles.flatMap((r) => r.countries)) {
+  if (!countryKinds.has(c.code)) countryKinds.set(c.code, new Set());
+  c.kinds.forEach((k) => countryKinds.get(c.code)!.add(k));
+}
+const allCountries = [...countryKinds].map(([code, kinds]) => ({ code, kinds: [...kinds] }));
 const education = [
   {
     degree: "Master's, Industrial Management — Management and Economics of Innovation",
@@ -206,9 +211,9 @@ const other = [
               {job.title}
               {job.current && <span class="badge">Current</span>}
             </div>
-            <div class="entry-meta">{job.org}{roleMeta(job).map((part) => <> · <span class="nowrap">{part}</span></>)}</div>
+            <div class="entry-meta">{job.org} · <span class="nowrap">{formatPeriod(job)}</span> · <span class="nowrap" data-periods={livePeriods([job])}>{formatDuration(monthsIn(job))}</span>{job.location && <> · <span class="nowrap">{job.location}</span></>}</div>
             <div class="flags">
-              {job.countries.map((c) => <Flag code={c.code} title={flagTitle(c)} />)}
+              {job.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
             </div>
             {job.assignments && (
               <ul class="sub-list">
@@ -221,9 +226,9 @@ const other = [
                     )}
                     <div class="entry-body">
                       <div class="entry-title entry-title-sub">{a.title}</div>
-                      <div class="entry-meta">{a.org}{roleMeta(a).map((part) => <> · <span class="nowrap">{part}</span></>)}</div>
+                      <div class="entry-meta">{a.org} · <span class="nowrap">{formatPeriod(a)}</span> · <span class="nowrap" data-periods={livePeriods([a])}>{formatDuration(monthsIn(a))}</span>{a.location && <> · <span class="nowrap">{a.location}</span></>}</div>
                       <div class="flags">
-                        {a.countries.map((c) => <Flag code={c.code} title={flagTitle(c)} />)}
+                        {a.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
                       </div>
                     </div>
                   </li>
@@ -285,7 +290,7 @@ const other = [
         <li>
           <div class="summary-row">
             <span class="entry-title">{c.name}</span>
-            <span class="summary-duration">{c.duration}</span>
+            <span class="summary-duration" data-periods={c.periods}>{c.duration}</span>
           </div>
           <div class="entry-meta">{c.orgs.join(' · ')}</div>
         </li>
@@ -296,17 +301,33 @@ const other = [
   <section>
     <h2>International experience</h2>
     <ul class="country-list">
-      {allCountries.map((code) => (
-        <li>
-          <Flag code={code} />
-          <span>{COUNTRY_NAMES[code]}</span>
-        </li>
+      {allCountries.map((c) => (
+        <li><CountryTag code={c.code} kinds={c.kinds} showName /></li>
+      ))}
+    </ul>
+    <ul class="legend">
+      {INVOLVEMENTS.map((k) => (
+        <li><InvolvementIcon kind={k} /> {INVOLVEMENT_LABELS[k]}</li>
       ))}
     </ul>
   </section>
 
   <p class="more">Full details on <a href="https://www.linkedin.com/in/oskar-lindvall-35735854/" target="_blank" rel="noopener noreferrer">LinkedIn</a>.</p>
 </Layout>
+
+<script>
+  // Recompute durations that include an ongoing role, so they stay current
+  // without a redeploy. The build-time text is the no-JS fallback.
+  import { formatDuration, monthsCovered } from '../../lib/cv-duration';
+
+  document.querySelectorAll<HTMLElement>('[data-periods]').forEach((el) => {
+    try {
+      el.textContent = formatDuration(monthsCovered(JSON.parse(el.dataset.periods!)));
+    } catch {
+      /* keep build-time value */
+    }
+  });
+</script>
 
 <style>
   .back {
@@ -436,7 +457,7 @@ const other = [
   .flags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.35rem 0.75rem;
     margin-top: 0.4rem;
   }
 
@@ -470,6 +491,23 @@ const other = [
     gap: 0.45rem;
     font-size: 0.9rem;
     color: var(--color-text-muted);
+  }
+
+  .legend {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
   }
 
   .more {
