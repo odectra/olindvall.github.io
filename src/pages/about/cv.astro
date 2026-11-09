@@ -149,10 +149,10 @@ const experience: Role[] = [
 // Experience at a glance: whole years per category. Overlapping months count once.
 const MENTICE = ['mentice-pmo', 'mentice-product', 'mentice-pm'];
 const categoryDefs: { name: string; note?: string; roles: string[] }[] = [
-  { name: 'People Leadership', roles: ['az-ad', 'az-pm', 'abb', ...MENTICE] },
-  { name: 'Line Management', roles: ['az-ad', 'mentice-pmo'] },
-  { name: 'Technology', note: 'Software · Data · Robotics', roles: ['az-ad', 'abb', ...MENTICE] },
-  { name: 'Life Sciences', roles: ['az-ad', 'az-pm', 'fresenius', 'care-of-sweden', ...MENTICE] },
+  { name: 'People Leadership', note: 'Project Leader · Line Manager', roles: ['az-ad', 'az-pm', 'abb', ...MENTICE] },
+  { name: 'Line Management', note: 'Director, Mentice · Associate Director, AstraZeneca', roles: ['az-ad', 'mentice-pmo'] },
+  { name: 'Technology', note: 'Automation · Data · Robotics · Software', roles: ['az-ad', 'abb', ...MENTICE] },
+  { name: 'Life Sciences', note: 'Pharmaceuticals · Medical Devices · Medical Simulation', roles: ['az-ad', 'az-pm', 'fresenius', 'care-of-sweden', ...MENTICE] },
 ];
 
 // Periods behind a duration, for the client script that keeps ongoing
