@@ -21,8 +21,7 @@ interface Role extends Period {
   countries: RoleCountry[];
   // Client assignments (Knightec) or, with `progression`, promotions within one company.
   assignments?: Role[];
-  progression?: string[];
-  progressionNote?: string;
+  progression?: boolean;
 }
 
 
@@ -50,8 +49,7 @@ const experience: Role[] = [
     start: '2019-06',
     end: '2023-07',
     location: 'Gothenburg, Sweden',
-    progression: ['Project Manager', 'Product Manager', 'Director PMO'],
-    progressionNote: 'in ~3 years',
+    progression: true,
     countries: [],
     assignments: [
       {
@@ -230,12 +228,6 @@ const recognition = [
               {job.current && <span class="badge">Current</span>}
             </div>
             <div class="entry-meta">{job.org !== job.title && <>{job.org} · </>}<span class="nowrap">{formatPeriod(job)}</span> · <span class="nowrap" data-periods={livePeriods([job])}>{formatDuration(monthsIn(job))}</span>{job.location && <> · <span class="nowrap">{job.location}</span></>}</div>
-            {job.progression && (
-              <div class="progression" aria-label={`Progression: ${job.progression.join(', then ')} ${job.progressionNote ?? ''}`}>
-                {job.progression.map((step, i) => <>{i > 0 && <span class="arrow" aria-hidden="true">→</span>}<span class="step">{step}</span></>)}
-                {job.progressionNote && <span class="progression-note">{job.progressionNote}</span>}
-              </div>
-            )}
             {job.countries.length > 0 && (
               <div class="flags">
                 {job.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
@@ -491,29 +483,6 @@ const recognition = [
     font-size: 1.1rem;
     line-height: 1.5;
     color: var(--color-text-muted);
-  }
-
-  .progression {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.2rem 0.4rem;
-    font-size: 0.85rem;
-  }
-
-  .progression .step {
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .progression .arrow {
-    color: var(--color-accent);
-  }
-
-  .progression-note {
-    color: var(--color-accent);
-    font-weight: 500;
   }
 
   /* Promotions within one company: dots on the line, newest highlighted. */
