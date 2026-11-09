@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import CountryTag from '../../components/CountryTag.astro';
 import InvolvementIcon from '../../components/InvolvementIcon.astro';
-import { formatDuration, formatPeriod, monthsCovered, monthsIn, type Period } from '../../lib/cv-duration';
+import { formatDuration, formatPeriod, formatYears, monthsCovered, monthsIn, type Period } from '../../lib/cv-duration';
 import { INVOLVEMENTS, INVOLVEMENT_LABELS, type CountryCode, type Involvement } from '../../lib/countries';
 
 interface RoleCountry {
@@ -19,7 +19,9 @@ interface Role extends Period {
   location?: string;
   current?: boolean;
   countries: RoleCountry[];
+  // Client assignments (Knightec) or, with `progression`, promotions within one company.
   assignments?: Role[];
+  progression?: boolean;
 }
 
 
@@ -40,43 +42,56 @@ const experience: Role[] = [
     ],
   },
   {
-    id: 'mentice-pmo',
-    title: 'Director, Project Management Office',
-    org: 'Mentice',
-    logoImage: '/images/logos/mentice.png',
-    start: '2022-10',
-    end: '2023-07',
-    location: 'Gothenburg, Sweden',
-    countries: [
-      { code: 'SE', kinds: ['based', 'team'] },
-      { code: 'US', kinds: ['team'] },
-    ],
-  },
-  {
-    id: 'mentice-product',
-    title: 'Product Manager — Services & Strategy',
-    org: 'Mentice',
-    logoImage: '/images/logos/mentice.png',
-    start: '2021-12',
-    end: '2022-10',
-    location: 'Gothenburg, Sweden',
-    countries: [
-      { code: 'SE', kinds: ['based'] },
-      { code: 'ES', kinds: ['visits'] },
-    ],
-  },
-  {
-    id: 'mentice-pm',
-    title: 'Project Manager, Medical Device Industry',
+    id: 'mentice',
+    title: 'Mentice',
     org: 'Mentice',
     logoImage: '/images/logos/mentice.png',
     start: '2019-06',
-    end: '2021-12',
+    end: '2023-07',
     location: 'Gothenburg, Sweden',
-    countries: [
-      { code: 'SE', kinds: ['based', 'team'] },
-      { code: 'US', kinds: ['team', 'customers'] },
-      { code: 'BE', kinds: ['visits', 'customers'] },
+    progression: true,
+    countries: [],
+    assignments: [
+      {
+        id: 'mentice-pmo',
+        title: 'Director, Project Management Office',
+        org: 'Mentice',
+        logoImage: '/images/logos/mentice.png',
+        start: '2022-10',
+        end: '2023-07',
+        location: 'Gothenburg, Sweden',
+        countries: [
+          { code: 'SE', kinds: ['based', 'team'] },
+          { code: 'US', kinds: ['team'] },
+        ],
+      },
+      {
+        id: 'mentice-product',
+        title: 'Product Manager — Services & Strategy',
+        org: 'Mentice',
+        logoImage: '/images/logos/mentice.png',
+        start: '2021-12',
+        end: '2022-10',
+        location: 'Gothenburg, Sweden',
+        countries: [
+          { code: 'SE', kinds: ['based'] },
+          { code: 'ES', kinds: ['visits'] },
+        ],
+      },
+      {
+        id: 'mentice-pm',
+        title: 'Project Manager, Medical Device Industry',
+        org: 'Mentice',
+        logoImage: '/images/logos/mentice.png',
+        start: '2019-06',
+        end: '2021-12',
+        location: 'Gothenburg, Sweden',
+        countries: [
+          { code: 'SE', kinds: ['based', 'team'] },
+          { code: 'US', kinds: ['team', 'customers'] },
+          { code: 'BE', kinds: ['visits', 'customers'] },
+        ],
+      },
     ],
   },
   {
@@ -131,13 +146,13 @@ const experience: Role[] = [
   },
 ];
 
-// Accumulated experience per category. Overlapping months are counted once.
-const categoryDefs: { name: string; roles: string[] }[] = [
-  { name: 'Line Manager', roles: ['az-ad', 'mentice-pmo'] },
-  { name: 'Team Leadership', roles: ['az-ad', 'az-pm', 'abb', 'mentice-pmo', 'mentice-product', 'mentice-pm'] },
-  { name: 'Pharma Industry', roles: ['az-ad', 'az-pm', 'fresenius'] },
-  { name: 'Medical Device Industry', roles: ['care-of-sweden', 'mentice-pmo', 'mentice-product', 'mentice-pm'] },
-  { name: 'IT / Data Science / Robotics', roles: ['abb', 'mentice-pmo', 'mentice-product', 'mentice-pm', 'az-ad'] },
+// Experience at a glance: whole years per category. Overlapping months count once.
+const MENTICE = ['mentice-pmo', 'mentice-product', 'mentice-pm'];
+const categoryDefs: { name: string; note?: string; roles: string[] }[] = [
+  { name: 'People Leadership', roles: ['az-ad', 'az-pm', 'abb', ...MENTICE] },
+  { name: 'Line Management', roles: ['az-ad', 'mentice-pmo'] },
+  { name: 'Technology', note: 'Software · Data · Robotics', roles: ['az-ad', 'abb', ...MENTICE] },
+  { name: 'Life Sciences', roles: ['az-ad', 'az-pm', 'fresenius', 'care-of-sweden', ...MENTICE] },
 ];
 
 // Periods behind a duration, for the client script that keeps ongoing
@@ -146,12 +161,12 @@ const livePeriods = (periods: Period[]) =>
   periods.some((p) => !p.end) ? JSON.stringify(periods.map(({ start, end }) => ({ start, end }))) : undefined;
 
 const allRoles = experience.flatMap((r) => [r, ...(r.assignments ?? [])]);
+
 const roleById = new Map(allRoles.map((r) => [r.id, r]));
 
 const categories = categoryDefs.map((c) => {
   const roles = c.roles.map((id) => roleById.get(id)!);
-  const orgs = [...new Set(roles.map((r) => r.org.split(' — ')[0]))];
-  return { name: c.name, duration: formatDuration(monthsCovered(roles)), periods: livePeriods(roles), orgs };
+  return { name: c.name, note: c.note, years: formatYears(monthsCovered(roles)), periods: livePeriods(roles) };
 });
 
 // Every country across all roles, with the union of involvements.
@@ -182,10 +197,10 @@ const education = [
   },
 ];
 
-const other = [
+const recognition = [
   {
-    title: 'Nova 111 List — Healthcare & Life Sciences',
-    description: 'Selected as a top young professional talent in Sweden.',
+    title: 'Nova 111 List · Healthcare & Life Sciences · 2026',
+    description: 'Selected as a top young professional talent under 35 in Sweden',
     logoImage: '/images/logos/nova-talent.png',
     period: '2026',
     href: 'https://novatalent.com/111-list/the-nova-111-list-sweden-2026',
@@ -195,6 +210,7 @@ const other = [
 <Layout title="CV" description="Professional CV of Oskar Lindvall.">
   <p class="back"><a href="/about">← About</a></p>
   <h1>CV</h1>
+  <p class="lede">Curious leader across technology and life sciences, with background in engineering, product, projects and quality.</p>
 
   <section>
     <h2>Experience</h2>
@@ -211,11 +227,26 @@ const other = [
               {job.title}
               {job.current && <span class="badge">Current</span>}
             </div>
-            <div class="entry-meta">{job.org} · <span class="nowrap">{formatPeriod(job)}</span> · <span class="nowrap" data-periods={livePeriods([job])}>{formatDuration(monthsIn(job))}</span>{job.location && <> · <span class="nowrap">{job.location}</span></>}</div>
-            <div class="flags">
-              {job.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
-            </div>
-            {job.assignments && (
+            <div class="entry-meta">{job.org !== job.title && <>{job.org} · </>}<span class="nowrap">{formatPeriod(job)}</span> · <span class="nowrap" data-periods={livePeriods([job])}>{formatDuration(monthsIn(job))}</span>{job.location && <> · <span class="nowrap">{job.location}</span></>}</div>
+            {job.countries.length > 0 && (
+              <div class="flags">
+                {job.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
+              </div>
+            )}
+            {job.assignments && job.progression && (
+              <ol class="sub-list timeline">
+                {job.assignments.map((a) => (
+                  <li>
+                    <div class="entry-title entry-title-sub">{a.title}</div>
+                    <div class="entry-meta"><span class="nowrap">{formatPeriod(a)}</span> · <span class="nowrap" data-periods={livePeriods([a])}>{formatDuration(monthsIn(a))}</span></div>
+                    <div class="flags">
+                      {a.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {job.assignments && !job.progression && (
               <ul class="sub-list">
                 {job.assignments.map((a) => (
                   <li class="entry-row">
@@ -261,9 +292,9 @@ const other = [
   </section>
 
   <section>
-    <h2>Other</h2>
+    <h2>Recognition</h2>
     <ul class="entry-list">
-      {other.map((item) => (
+      {recognition.map((item) => (
         <li class="entry-row">
           {item.logoImage ? (
             <img class="logo logo-img" src={item.logoImage} alt={`${item.title} logo`} width="32" height="32" />
@@ -276,7 +307,7 @@ const other = [
                 <a href={item.href} target="_blank" rel="noopener noreferrer">{item.title}</a>
               ) : item.title}
             </div>
-            <div class="entry-meta">{item.description} · {item.period}</div>
+            <div class="entry-meta">{item.description}</div>
           </div>
         </li>
       ))}
@@ -284,15 +315,15 @@ const other = [
   </section>
 
   <section>
-    <h2>Accumulated experience</h2>
+    <h2>Experience at a glance</h2>
     <ul class="entry-list summary-list">
       {categories.map((c) => (
         <li>
           <div class="summary-row">
             <span class="entry-title">{c.name}</span>
-            <span class="summary-duration" data-periods={c.periods}>{c.duration}</span>
+            <span class="summary-duration" data-periods={c.periods} data-format="years">{c.years}</span>
           </div>
-          <div class="entry-meta">{c.orgs.join(' · ')}</div>
+          {c.note && <div class="summary-note">{c.note}</div>}
         </li>
       ))}
     </ul>
@@ -318,11 +349,12 @@ const other = [
 <script>
   // Recompute durations that include an ongoing role, so they stay current
   // without a redeploy. The build-time text is the no-JS fallback.
-  import { formatDuration, monthsCovered } from '../../lib/cv-duration';
+  import { formatDuration, formatYears, monthsCovered } from '../../lib/cv-duration';
 
   document.querySelectorAll<HTMLElement>('[data-periods]').forEach((el) => {
     try {
-      el.textContent = formatDuration(monthsCovered(JSON.parse(el.dataset.periods!)));
+      const months = monthsCovered(JSON.parse(el.dataset.periods!));
+      el.textContent = el.dataset.format === 'years' ? formatYears(months) : formatDuration(months);
     } catch {
       /* keep build-time value */
     }
@@ -443,6 +475,42 @@ const other = [
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .lede {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  /* Promotions within one company: dots on the line, newest highlighted. */
+  .timeline li {
+    position: relative;
+  }
+
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    left: calc(-1.25rem - 4.5px);
+    top: 0.45rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: 1px solid var(--color-accent);
+  }
+
+  .timeline li:first-child::before {
+    background: var(--color-accent);
+  }
+
+  .summary-note {
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    opacity: 0.8;
   }
 
   .entry-title-sub {

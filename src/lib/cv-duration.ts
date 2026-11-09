@@ -57,3 +57,10 @@ export function formatPeriod(p: Period): string {
   if (p.end === p.start) return formatMonth(p.start);
   return `${formatMonth(p.start)} – ${p.end ? formatMonth(p.end) : 'Present'}`;
 }
+
+/** Whole years only, e.g. 50 months → '4+ years'. */
+export function formatYears(totalMonths: number): string {
+  const years = Math.floor(totalMonths / 12);
+  if (years === 0) return '< 1 year';
+  return `${years}${totalMonths % 12 ? '+' : ''} ${years === 1 ? 'year' : 'years'}`;
+}

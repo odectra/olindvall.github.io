@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatDuration, formatPeriod, monthsCovered, monthsIn } from '../src/lib/cv-duration.ts';
+import { formatDuration, formatYears, formatPeriod, monthsCovered, monthsIn } from '../src/lib/cv-duration.ts';
 
 const now = new Date(2026, 10, 5); // Nov 2026
 
@@ -29,4 +29,11 @@ test('formatPeriod', () => {
   assert.equal(formatPeriod({ start: '2018-05', end: '2018-05' }), 'May 2018');
   assert.equal(formatPeriod({ start: '2023-07' }), 'Jul 2023 – Present');
   assert.equal(formatPeriod({ start: '2019-06', end: '2021-12' }), 'Jun 2019 – Dec 2021');
+});
+
+test('formatYears rounds down to whole years', () => {
+  assert.equal(formatYears(50), '4+ years');
+  assert.equal(formatYears(48), '4 years');
+  assert.equal(formatYears(13), '1+ year');
+  assert.equal(formatYears(7), '< 1 year');
 });
