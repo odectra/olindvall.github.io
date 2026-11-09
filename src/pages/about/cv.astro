@@ -149,7 +149,8 @@ const experience: Role[] = [
 // Experience at a glance: whole years per category. Overlapping months count once.
 const MENTICE = ['mentice-pmo', 'mentice-product', 'mentice-pm'];
 const categoryDefs: { name: string; note?: string; roles: string[] }[] = [
-  { name: 'People Leadership', note: 'Project Leader · Line Manager', roles: ['az-ad', 'az-pm', 'abb', ...MENTICE] },
+  // Product Manager (mentice-product) left out: technical leadership, no team.
+  { name: 'People Leadership', note: 'Project Leader · Line Manager', roles: ['az-ad', 'az-pm', 'abb', 'mentice-pm', 'mentice-pmo'] },
   { name: 'Line Management', note: 'Director, Mentice · Associate Director, AstraZeneca', roles: ['az-ad', 'mentice-pmo'] },
   { name: 'Technology', note: 'Automation · Data · Robotics · Software', roles: ['az-ad', 'abb', ...MENTICE] },
   { name: 'Life Sciences', note: 'Pharmaceuticals · Medical Devices · Medical Simulation', roles: ['az-ad', 'az-pm', 'fresenius', 'care-of-sweden', ...MENTICE] },
