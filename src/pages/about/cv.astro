@@ -182,7 +182,20 @@ const categories = categoryDefs.map((c) => {
   };
 });
 
-const education = [
+interface Course {
+  title: string;
+  meta: string[];
+}
+
+interface Education {
+  degree: string;
+  school: string;
+  logoImage?: string;
+  period: string;
+  courses?: Course[];
+}
+
+const education: Education[] = [
   {
     degree: "Master's, Industrial Management — Management and Economics of Innovation",
     school: 'Chalmers University of Technology',
@@ -190,10 +203,20 @@ const education = [
     period: '2013 – 2015',
   },
   {
-    degree: 'Occupational and Organisational Psychology',
+    degree: 'Courses in psychology and law',
     school: 'University of Gothenburg',
     logoImage: '/images/logos/university-of-gothenburg.png',
     period: '2014 – 2015',
+    courses: [
+      {
+        title: 'Occupational and Organisational Psychology',
+        meta: ['Department of Psychology', '30 credits, half-time', 'Sep 2014 – May 2015'],
+      },
+      {
+        title: 'Introduction to Law',
+        meta: ['Department of Law', '15 credits', 'Autumn 2014'],
+      },
+    ],
   },
   {
     degree: "Bachelor's, Mechanical Engineering",
@@ -296,6 +319,16 @@ const recognition = [
           <div class="entry-body">
             <div class="entry-title">{item.degree}</div>
             <div class="entry-meta">{item.school} · {item.period}</div>
+            {item.courses && (
+              <ul class="sub-list">
+                {item.courses.map((c) => (
+                  <li>
+                    <div class="entry-title entry-title-sub">{c.title}</div>
+                    <div class="entry-meta">{c.meta.map((part, i) => <>{i > 0 && ' · '}<span class="nowrap">{part}</span></>)}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </li>
       ))}
