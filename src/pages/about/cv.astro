@@ -19,6 +19,8 @@ interface Role extends Period {
   location?: string;
   current?: boolean;
   countries: RoleCountry[];
+  // One short sentence, shown only when the "Details" toggle is on.
+  summary?: string;
   // Client assignments (Knightec) or, with `progression`, promotions within one company.
   assignments?: Role[];
   progression?: boolean;
@@ -30,6 +32,7 @@ interface Role extends Period {
 const experience: Role[] = [
   {
     id: 'az-ad',
+    summary: "Lead a team of 4-6 members in Sweden and the UK supporting AstraZeneca's quality IT systems, and drive data, AI and digital improvement projects. Rated Exceptional Contributor (EC) in the 2024 performance review.",
     title: 'Associate Director Development Quality — Quality Systems',
     org: 'AstraZeneca',
     logoImage: '/images/logos/astrazeneca.png',
@@ -43,6 +46,7 @@ const experience: Role[] = [
   },
   {
     id: 'mentice',
+    summary: "Promoted from project manager to product manager to head of the project management office.",
     title: 'Mentice',
     org: 'Mentice',
     logoImage: '/images/logos/mentice.png',
@@ -54,6 +58,7 @@ const experience: Role[] = [
     assignments: [
       {
         id: 'mentice-pmo',
+        summary: "Led the project management office, with seven project managers in Sweden and the USA.",
         title: 'Director, Project Management Office',
         org: 'Mentice',
         logoImage: '/images/logos/mentice.png',
@@ -67,6 +72,7 @@ const experience: Role[] = [
       },
       {
         id: 'mentice-product',
+        summary: "Technical product manager for services and strategy: owned the service offering, took part in an M&A due-diligence trip to Barcelona, and built a product and SaaS business-case model (DCF, IRR, payback).",
         title: 'Product Manager — Services & Strategy',
         org: 'Mentice',
         logoImage: '/images/logos/mentice.png',
@@ -80,6 +86,7 @@ const experience: Role[] = [
       },
       {
         id: 'mentice-pm',
+        summary: "Ran medical simulation projects in cardiac rhythm management, electrophysiology and acute ischemic stroke for medical device clients such as Abbott, Biotronik and Stryker.",
         title: 'Project Manager, Medical Device Industry',
         org: 'Mentice',
         logoImage: '/images/logos/mentice.png',
@@ -96,6 +103,7 @@ const experience: Role[] = [
   },
   {
     id: 'knightec',
+    summary: "Consultant on quality and project assignments across pharma, medical devices and robotics.",
     title: 'Consultant — Quality & Management',
     org: 'Knightec',
     logo: 'KN',
@@ -105,6 +113,7 @@ const experience: Role[] = [
     assignments: [
       {
         id: 'abb',
+        summary: "Project lead for spot welding projects for an automotive customer in China.",
         title: 'Project Manager',
         org: 'ABB Robotics — Spot Welding Application Center',
         logoImage: '/images/logos/abb.png',
@@ -117,6 +126,7 @@ const experience: Role[] = [
       },
       {
         id: 'care-of-sweden',
+        summary: "Led testing of a medical device for preventing pressure ulcers.",
         title: 'Lead Test Engineer',
         org: 'Care of Sweden AB',
         logoImage: '/images/logos/care-of-sweden.png',
@@ -126,6 +136,7 @@ const experience: Role[] = [
       },
       {
         id: 'fresenius',
+        summary: "Validation engineering assignment, based at a site in Norway.",
         title: 'Validation Engineer',
         org: 'Fresenius Kabi',
         logoImage: '/images/logos/fresenius-kabi.jpg',
@@ -135,6 +146,7 @@ const experience: Role[] = [
       },
       {
         id: 'az-pm',
+        summary: "Project manager in AstraZeneca's Sweden Operations, part of projects establishing manufacturing for Genuair (COPD) and Lynparza (oncology).",
         title: 'Project Manager',
         org: 'AstraZeneca — Sweden Operations',
         logoImage: '/images/logos/astrazeneca.png',
@@ -245,7 +257,14 @@ const recognition = [
   <p class="lede">Engineer leading people across technology and life sciences, increasingly drawn to where software, data, health and human performance meet.</p>
 
   <section>
-    <h2>Experience</h2>
+    <div class="section-head">
+      <h2>Experience</h2>
+      <label class="details-toggle">
+        <input type="checkbox" id="show-details" />
+        <span class="switch" aria-hidden="true"></span>
+        Details
+      </label>
+    </div>
     <ul class="legend" aria-label="Icons next to flags">
       {INVOLVEMENTS.map((k) => (
         <li><InvolvementIcon kind={k} /> {INVOLVEMENT_SHORT[k]}</li>
@@ -265,6 +284,7 @@ const recognition = [
               {job.current && <span class="badge">Current</span>}
             </div>
             <div class="entry-meta">{job.org !== job.title && <>{job.org} · </>}<span class="nowrap">{formatPeriod(job)}</span> · <span class="nowrap" data-periods={livePeriods([job])}>{formatDuration(monthsIn(job))}</span>{job.location && <> · <span class="nowrap">{job.location}</span></>}</div>
+            {job.summary && <p class="role-detail">{job.summary}</p>}
             {job.countries.length > 0 && (
               <div class="flags">
                 {job.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
@@ -276,6 +296,7 @@ const recognition = [
                   <li>
                     <div class="entry-title entry-title-sub">{a.title}</div>
                     <div class="entry-meta"><span class="nowrap">{formatPeriod(a)}</span> · <span class="nowrap" data-periods={livePeriods([a])}>{formatDuration(monthsIn(a))}</span></div>
+                    {a.summary && <p class="role-detail">{a.summary}</p>}
                     <div class="flags">
                       {a.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
                     </div>
@@ -295,6 +316,7 @@ const recognition = [
                     <div class="entry-body">
                       <div class="entry-title entry-title-sub">{a.title}</div>
                       <div class="entry-meta">{a.org} · <span class="nowrap">{formatPeriod(a)}</span> · <span class="nowrap" data-periods={livePeriods([a])}>{formatDuration(monthsIn(a))}</span>{a.location && <> · <span class="nowrap">{a.location}</span></>}</div>
+                      {a.summary && <p class="role-detail">{a.summary}</p>}
                       <div class="flags">
                         {a.countries.map((c) => <CountryTag code={c.code} kinds={c.kinds} />)}
                       </div>
@@ -619,6 +641,77 @@ const recognition = [
     text-align: right;
     font-size: 0.72rem;
     color: var(--color-text-muted);
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  /* Details toggle: pure CSS, off by default. */
+  .details-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .details-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .switch {
+    position: relative;
+    width: 1.8rem;
+    height: 1rem;
+    border-radius: 999px;
+    background: var(--color-border);
+    transition: background 0.15s;
+  }
+
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(1rem - 4px);
+    height: calc(1rem - 4px);
+    border-radius: 50%;
+    background: var(--color-bg);
+    transition: transform 0.15s;
+  }
+
+  .details-toggle input:checked + .switch {
+    background: var(--color-accent);
+  }
+
+  .details-toggle input:checked + .switch::after {
+    transform: translateX(0.8rem);
+  }
+
+  .details-toggle input:focus-visible + .switch {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .role-detail {
+    display: none;
+    margin: 0.3rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+
+  section:has(#show-details:checked) .role-detail {
+    display: block;
   }
 
   .legend {
