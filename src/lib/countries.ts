@@ -21,3 +21,11 @@ export const INVOLVEMENT_LABELS: Record<Involvement, string> = {
   visits: 'Visited clients there',
   customers: 'Customers there',
 };
+
+/** Short labels for the legend under the Experience heading. */
+export const INVOLVEMENT_SHORT: Record<Involvement, string> = {
+  based: 'Based',
+  team: 'Led team',
+  visits: 'Client visits',
+  customers: 'Customers',
+};
