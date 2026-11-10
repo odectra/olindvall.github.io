@@ -190,6 +190,7 @@ interface Course {
 interface Education {
   degree: string;
   school: string;
+  pace?: string;
   logoImage?: string;
   period: string;
   courses?: Course[];
@@ -199,6 +200,7 @@ const education: Education[] = [
   {
     degree: "Master's, Industrial Management — Management and Economics of Innovation",
     school: 'Chalmers University of Technology',
+    pace: 'Full-time',
     logoImage: '/images/logos/chalmers.jpg',
     period: '2013 – 2015',
   },
@@ -221,6 +223,7 @@ const education: Education[] = [
   {
     degree: "Bachelor's, Mechanical Engineering",
     school: 'Chalmers University of Technology',
+    pace: 'Full-time',
     logoImage: '/images/logos/chalmers.jpg',
     period: '2010 – 2013',
   },
@@ -318,7 +321,7 @@ const recognition = [
           )}
           <div class="entry-body">
             <div class="entry-title">{item.degree}</div>
-            <div class="entry-meta">{item.school} · {item.period}</div>
+            <div class="entry-meta">{item.school} · <span class="nowrap">{item.period}</span>{item.pace && <> · {item.pace}</>}</div>
             {item.courses && (
               <ul class="sub-list">
                 {item.courses.map((c) => (
