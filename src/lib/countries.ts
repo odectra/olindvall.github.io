@@ -18,7 +18,7 @@ export const INVOLVEMENTS: Involvement[] = ['based', 'team', 'visits', 'customer
 export const INVOLVEMENT_LABELS: Record<Involvement, string> = {
   based: 'Based there',
   team: 'Led team members / direct reports there',
-  visits: 'Visited clients there',
+  visits: 'Business visits there',
   customers: 'Customers there',
 };
 
@@ -26,6 +26,6 @@ export const INVOLVEMENT_LABELS: Record<Involvement, string> = {
 export const INVOLVEMENT_SHORT: Record<Involvement, string> = {
   based: 'Based',
   team: 'Led team',
-  visits: 'Client visits',
+  visits: 'Business visits',
   customers: 'Customers',
 };
